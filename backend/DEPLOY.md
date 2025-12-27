@@ -18,9 +18,15 @@ Este guia explica como configurar o CI/CD com GitHub Actions para deploy automá
 4. Configure o projeto:
    - **Framework Preset**: Other
    - **Root Directory**: `backend`
-   - **Build Command**: `pnpm build`
-   - **Output Directory**: (deixe vazio, não é necessário para serverless functions)
+   - **Build Command**: `pnpm build` (ou deixe vazio se não precisar compilar antes)
+   - **Output Directory**: `.` (ponto - importante para serverless functions)
    - **Install Command**: `pnpm install`
+   
+   **⚠️ IMPORTANTE**: Se você receber o erro "No Output Directory named 'public' found":
+   - No painel do Vercel, vá em **Settings > General**
+   - Em **Build & Output Settings**, defina **Output Directory** como `.` (ponto)
+   - Ou deixe completamente vazio se a opção permitir
+   - Salve as configurações
 
 ### 2. Obter Credenciais do Vercel
 
@@ -114,6 +120,20 @@ As migrações do Prisma devem ser executadas manualmente ou através de um scri
 ```
 
 ## Troubleshooting
+
+### Erro: "No Output Directory named 'public' found"
+
+Este erro ocorre quando o Vercel espera um diretório de saída, mas para serverless functions não precisamos de um.
+
+**Solução**:
+1. Acesse o dashboard do Vercel
+2. Vá em **Settings > General**
+3. Em **Build & Output Settings**, encontre **Output Directory**
+4. Defina como `.` (ponto) ou deixe completamente vazio
+5. Salve as configurações
+6. Faça um novo deploy
+
+**Alternativa**: Se o erro persistir, você pode adicionar `"outputDirectory": "."` no `vercel.json`, mas geralmente não é necessário.
 
 ### Erro: "Cannot find module"
 
