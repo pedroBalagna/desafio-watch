@@ -240,6 +240,8 @@ pnpm run test:e2e
 
 ```
 backend/
+├── api/
+│   └── index.ts                # Handler serverless para Vercel Functions
 ├── prisma/
 │   ├── schema.prisma          # Schema do banco de dados
 │   └── seed.ts                 # Script de seed
@@ -260,12 +262,54 @@ backend/
 │   │   └── logger/             # Serviço de logging
 │   ├── prisma/                 # Módulo Prisma
 │   ├── app.module.ts           # Módulo raiz
-│   └── main.ts                 # Ponto de entrada
+│   └── main.ts                 # Ponto de entrada (desenvolvimento local)
 ├── .env.example                # Exemplo de variáveis de ambiente
+├── vercel.json                 # Configuração do Vercel
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
+
+### 📂 Por que temos dois arquivos de entrada?
+
+Este projeto possui dois arquivos de entrada para suportar diferentes ambientes de execução:
+
+#### `src/main.ts` - Desenvolvimento Local
+- **Propósito**: Inicia um servidor HTTP tradicional que fica sempre ativo
+- **Quando é usado**: Durante desenvolvimento local (`pnpm start:dev`) ou em produção tradicional
+- **Como funciona**: 
+  - Cria a aplicação NestJS com Fastify
+  - Inicia um servidor que escuta em uma porta específica (`app.listen(port)`)
+  - O servidor fica rodando continuamente, processando múltiplas requisições
+- **Vantagens**: 
+  - Melhor para desenvolvimento (hot reload, debug)
+  - Ideal para ambientes tradicionais (servidores dedicados, containers)
+
+#### `api/index.ts` - Deploy no Vercel (Serverless)
+- **Propósito**: Handler serverless para o Vercel Functions
+- **Quando é usado**: Apenas durante o deploy no Vercel
+- **Como funciona**:
+  - Exporta uma função `handler` que recebe `VercelRequest` e `VercelResponse`
+  - Não inicia um servidor; processa requisições individuais sob demanda
+  - Converte requests/responses do Vercel para o formato Fastify
+  - Cacheia a aplicação NestJS para melhor performance (evita recriar a cada request)
+- **Vantagens**:
+  - Compatível com o modelo serverless do Vercel
+  - Escala automaticamente (cada request pode executar em uma função separada)
+  - Paga apenas pelo tempo de execução
+  - Cold start otimizado com cache da aplicação
+
+#### Resumo
+
+| Aspecto | `main.ts` | `api/index.ts` |
+|---------|-----------|----------------|
+| Ambiente | Desenvolvimento/Produção tradicional | Vercel Functions (Serverless) |
+| Execução | Servidor sempre ativo | Função executada sob demanda |
+| Interface | `app.listen(port)` | `export default handler(req, res)` |
+| Quando usar | `pnpm start:dev`, `pnpm start:prod` | Deploy automático no Vercel |
+| Cache | Não necessário | Sim (melhora performance) |
+
+**Nota**: Ambos os arquivos compartilham a mesma configuração da aplicação (CORS, validação, Swagger, etc.), garantindo comportamento consistente entre ambientes.
 
 ## 🔒 Segurança
 
@@ -292,20 +336,34 @@ Todos os scripts podem ser executados com `pnpm` ou `npm`:
 
 ## 🚀 Deploy
 
+### Deploy no Vercel (Recomendado)
+
+Este projeto está configurado para deploy automático no Vercel Functions através do GitHub Actions.
+
+**Arquivo usado**: `api/index.ts` (handler serverless)
+
+Para mais detalhes sobre a configuração de CI/CD e deploy, consulte o arquivo [`DEPLOY.md`](./DEPLOY.md).
+
+### Deploy Tradicional (Servidor Dedicado/Container)
+
+Para ambientes tradicionais, use o arquivo `src/main.ts`.
+
+**Arquivo usado**: `src/main.ts` (servidor HTTP tradicional)
+
 ### Variáveis de Ambiente Necessárias
 
 Certifique-se de configurar todas as variáveis de ambiente no ambiente de produção:
 - `DATABASE_URL`
 - `JWT_SECRET` (use um valor seguro e aleatório)
 - `JWT_EXPIRES_IN`
-- `PORT`
+- `PORT` (apenas para deploy tradicional)
 - `NODE_ENV=production`
 - `ELASTICSEARCH_NODE` (se usar Elasticsearch)
 - `ELASTICSEARCH_INDEX`
 - `ELASTICSEARCH_USERNAME` (se necessário)
 - `ELASTICSEARCH_PASSWORD` (se necessário)
 
-### Build para Produção
+### Build para Produção (Deploy Tradicional)
 
 ```bash
 # Usando pnpm
