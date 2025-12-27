@@ -24,7 +24,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "postinstall": "pnpm rebuild bcrypt"
+    "postinstall": "prisma generate && pnpm rebuild bcrypt"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",
