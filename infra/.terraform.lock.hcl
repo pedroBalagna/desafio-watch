@@ -1,0 +1,71 @@
+# This file is maintained automatically by "terraform init".
+# Manual edits may be lost in future updates.
+
+provider "registry.terraform.io/integrations/github" {
+  version     = "6.9.0"
+  constraints = "~> 6.0"
+  hashes = [
+    "h1:bYODY+MpUpp983X/c3i2mKgovx/5nMGpsKiHEjYe6E8=",
+    "zh:0136ce1ca9e438c6af2d2c46a415d9288616597ff7ef943f7b67f352917d2e0a",
+    "zh:0e46a1ff95096fdb2f40c6fcb172ba64a2002c9ce8edab8057f66f192a928be0",
+    "zh:222a4489f4188532643e3341413b9c44b1383d5c722ec45b6f21266a4c4ba2aa",
+    "zh:26a28a08588ee57b6da330bd8ef403045a68a13c42aab4943f67797013b5b6f1",
+    "zh:4cbee92a76b6709f1f543ed838e17ca52eb03a0eb6edc33bc68a78cd0baa0cf3",
+    "zh:54d9cef3445afedd630110a57b866ebb8daddfce8c2faafa46573c4514acdd13",
+    "zh:5b0e9feb58d6271752578a29756f1bd03a2fa9b4f70314f5b514eaabfe29019b",
+    "zh:7c43adad6b481b2d8787bef0ecfa62c95dd335072c160e72e462f83accf0f029",
+    "zh:7dadeb33d40c8b06a8d756e47bc7ea2e7d8a9d8a2f0b2c887c4b3df39c5350a4",
+    "zh:8a5f10033c0b3c2859aef39c0270c67e41634315e38234265bf84d530d0ea74f",
+    "zh:8d47c8cb36fda0f035cd8226b9da4b95d3b952808879759770850d70e2a52150",
+    "zh:b47f7e5318506658e44bf1cae266c3718bb427f0f92f7197c2c9d8571d24d091",
+    "zh:b6197414be228b81c06a7929a50c45daeb3d7a256f482f19b90c214cd787526f",
+    "zh:e02bbc0f4d59150945f2422cb0d81b21eb845c66e9ca5caf2dcaa3da6007a140",
+    "zh:fbd1fee2c9df3aa19cf8851ce134dea6e45ea01cb85695c1726670c285797e25",
+  ]
+}
+
+provider "registry.terraform.io/kislerdm/neon" {
+  version     = "0.12.0"
+  constraints = "~> 0.6"
+  hashes = [
+    "h1:oEJHdsZ2rUp9t9mbco43MpBvTVfXHLEyXLWtMC8SWnk=",
+    "zh:0c1475742e28548067f3cb3e8f3060a422072592ff7ff242ba2671c0c2d7baa4",
+    "zh:3db9999efe71da5cca567106fc47aa4e5832b2bcb61f971d9fad13d83b4dc85f",
+    "zh:58f39453071abf9febf56c1fd769faa1af8f73e922f0151b32fea70b234f5cf7",
+    "zh:5a75a1b27b7dd9ee3553703cc1189407676091deabbcfe635e095d9835b539c6",
+    "zh:636cc1aeff356837c45246af9f47e998470812d3f059ac1303586bda33034d6a",
+    "zh:8bd3d5109378b8d18ec417ed1b90d1b90fce8f65f3594997491acb75139f45b8",
+    "zh:aeef43614fe4324fdc1ff67f91fbceabd624e2ebe1574f3aaef75094879fbb2e",
+    "zh:b4a86adb78508e73d6e15c8dc9ec788261391c1c9722b109fc03df952035d1db",
+    "zh:b8fd311bdc661f1300fb3b0cb1d2ab8625fb20d4d67260951bad11aad2f97c0f",
+    "zh:c2828e38f29e43dfaf3e03888d50781933f07f4851391fc8778b35f9528c337e",
+    "zh:e06b8bbc6ab5d414361cb60a37f17a287719a60d07062e995e02b7f41df57c36",
+    "zh:e5f39530492a4ff96038bcca370f506bb1ad93d558a7d88bbd5695a7822ac5bb",
+    "zh:ecd9a254df199e0c9eeaeb21ccbb33c3aa283795a0835e0fbb64234d21284508",
+    "zh:f569b65999264a9416862bca5cd2a6177d94ccb0424f3a4ef424428912b9cb3c",
+    "zh:f7f505cc8bf2571d9ab732f23313fd65fa02b1d057d0c09453fdff0e2b30d0c9",
+  ]
+}
+
+provider "registry.terraform.io/vercel/vercel" {
+  version     = "1.14.1"
+  constraints = "~> 1.0"
+  hashes = [
+    "h1:nQF0QmUlIi24AX83ZeaX+WIENCyuSoZhdq1EGPz5/no=",
+    "zh:42cc63beffd99b00bcddc9291762165db032763d61430c2983e1f44b1ef07b52",
+    "zh:4d55cdb82abca2022e972e1a459427c66ad9441747042fca39c525108c47c052",
+    "zh:6aa50e2487cf622cb2401c3b772d48840f463d7335fbe2f05d6128abeac0c8ec",
+    "zh:78eb3b95ebf8ed8bba366a9dca726843d363f8ed65dc44c9473657a88fd11e81",
+    "zh:8e1aee394499eae56909b7f960776ccadce4c221ef9f902b41e771a1c1ee122b",
+    "zh:97df7debfb5e82ead1c49c1975d9135d69f93e6876fde5ef974cf77a937ee74a",
+    "zh:9a68945ba06d96e0ee9729a9a11f46cf781e7667ff95fb0eb448d65c1427ca60",
+    "zh:c825b71df9903bbf8646a8b9d19727e73e5edee02576f08036313c73a327d437",
+    "zh:cc34664462bdddda0a25a8d44a8b72800d9f54fad94ef2af8dfa8d2821d84b56",
+    "zh:ccfa33dd87d449e34f09f7dfe0e7a915c9a9345cd55bdec5af4075dd56dd0725",
+    "zh:d5b895b214a586b30cec55437056232e7d332708a5fccce0a66cdc85ca3cbe5f",
+    "zh:e2d6827c3d6e303ede7b22669c24ed21e55d3fd766873d25f7ccbcf2062aba0e",
+    "zh:eb5b2b6b7b545304470071de89ddca4e506eac368016fabca2316ed342edd794",
+    "zh:f26e0763dbe6a6b2195c94b44696f2110f7f55433dc142839be16b9697fa5597",
+    "zh:f7013f17051cbf2bd8a5980ba19b90aa32248f051f8d0948906fa1b643fd215e",
+  ]
+}

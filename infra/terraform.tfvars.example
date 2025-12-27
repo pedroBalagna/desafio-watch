@@ -1,0 +1,27 @@
+# =============================================================================
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in the values
+# =============================================================================
+
+# Provider API Keys
+neon_api_key     = "your-neon-api-key"          # https://console.neon.tech/app/settings/api-keys
+vercel_api_token = "your-vercel-api-token"      # https://vercel.com/account/tokens
+github_token     = "your-github-personal-token" # https://github.com/settings/tokens
+vercel_team_id   = null                         # Optional: Your Vercel team ID
+
+# GitHub Configuration
+github_owner = "your-github-username"
+github_repo  = "desafio-watch"
+
+# Project Configuration
+project_name = "desafio-watch"
+environment  = "prod"
+
+# Neon Configuration
+neon_org_id = "your-neon-org-id"  # https://console.neon.tech/app/settings/organizations
+neon_region = "aws-us-east-1"
+
+# Application Secrets
+jwt_secret     = "your-super-secret-jwt-key-change-in-production"
+jwt_expires_in = "1d"
+

@@ -1,17 +1,19 @@
-import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import express, { Express } from 'express';
-import { AppModule } from '../src/app.module';
 
-let app: Express;
+// Lazy load para evitar problemas de compilação
+let app: any;
 
-async function bootstrap(): Promise<Express> {
+async function bootstrap() {
   if (app) {
     return app;
   }
+
+  const { NestFactory } = await import('@nestjs/core');
+  const { ExpressAdapter } = await import('@nestjs/platform-express');
+  const { ValidationPipe } = await import('@nestjs/common');
+  const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
+  const express = (await import('express')).default;
+  const { AppModule } = await import('../src/app.module');
 
   const expressApp = express();
 
@@ -23,6 +25,7 @@ async function bootstrap(): Promise<Express> {
     },
   );
 
+  // Habilitar CORS
   nestApp.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -30,6 +33,7 @@ async function bootstrap(): Promise<Express> {
     credentials: true,
   });
 
+  // Validação global
   nestApp.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -38,6 +42,7 @@ async function bootstrap(): Promise<Express> {
     }),
   );
 
+  // Swagger/OpenAPI
   const config = new DocumentBuilder()
     .setTitle('Desafio Watch API')
     .setDescription('API REST para desafio técnico Watch - Fullstack PL/SR')
@@ -56,12 +61,7 @@ async function bootstrap(): Promise<Express> {
     .build();
 
   const document = SwaggerModule.createDocument(nestApp, config);
-  SwaggerModule.setup('docs', nestApp, document, {
-    customSiteTitle: 'Desafio Watch API',
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+  SwaggerModule.setup('api/docs', nestApp, document);
 
   await nestApp.init();
   app = expressApp;
@@ -75,7 +75,7 @@ export default async function handler(
 ): Promise<void> {
   try {
     const expressApp = await bootstrap();
-    expressApp(req as any, res as any);
+    expressApp(req, res);
   } catch (error) {
     console.error('Handler error:', error);
     res.status(500).json({
