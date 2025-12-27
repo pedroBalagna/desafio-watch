@@ -4,71 +4,86 @@ import { AppModule } from '../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import express from 'express';
+import express, { Express } from 'express';
 
-const server = express();
-let isAppInitialized = false;
+let app: Express;
 
-async function bootstrap() {
-  if (isAppInitialized) {
-    return;
+async function bootstrap(): Promise<Express> {
+  if (app) {
+    return app;
   }
 
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
-    bufferLogs: true,
-  });
+  const expressApp = express();
 
-  // Habilitar CORS
-  app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://frontend-watch.vercel.app',
-      process.env.FRONTEND_URL || '*',
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  });
-
-  // Validação global
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  // Swagger/OpenAPI
-  const config = new DocumentBuilder()
-    .setTitle('Desafio Watch API')
-    .setDescription('API REST para desafio técnico Watch - Fullstack PL/SR')
-    .setVersion('1.0')
-    .addBearerAuth(
+  try {
+    const nestApp = await NestFactory.create(
+      AppModule,
+      new ExpressAdapter(expressApp),
       {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
+        logger: ['error', 'warn'],
       },
-      'JWT-auth',
-    )
-    .build();
+    );
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+    // Habilitar CORS
+    nestApp.enableCors({
+      origin: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    });
 
-  await app.init();
-  isAppInitialized = true;
+    // Validação global
+    nestApp.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+
+    // Swagger/OpenAPI
+    const config = new DocumentBuilder()
+      .setTitle('Desafio Watch API')
+      .setDescription('API REST para desafio técnico Watch - Fullstack PL/SR')
+      .setVersion('1.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'JWT-auth',
+      )
+      .build();
+
+    const document = SwaggerModule.createDocument(nestApp, config);
+    SwaggerModule.setup('api/docs', nestApp, document);
+
+    await nestApp.init();
+    app = expressApp;
+
+    return app;
+  } catch (error) {
+    console.error('Bootstrap error:', error);
+    throw error;
+  }
 }
 
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ): Promise<void> {
-  await bootstrap();
-  server(req, res);
+  try {
+    const expressApp = await bootstrap();
+    expressApp(req as any, res as any);
+  } catch (error) {
+    console.error('Handler error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 }
