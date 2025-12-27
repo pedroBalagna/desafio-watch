@@ -1,0 +1,331 @@
+# Desafio Watch - Backend API
+
+API REST desenvolvida com NestJS para o desafio técnico Watch - Fullstack PL/SR.
+
+## 🚀 Tecnologias
+
+- **Node.js** com **NestJS** - Framework para construção de APIs
+- **Prisma** - ORM para PostgreSQL
+- **PostgreSQL** - Banco de dados relacional
+- **JWT** - Autenticação baseada em tokens
+- **Winston** + **Elasticsearch** - Sistema de logs estruturados
+- **Swagger/OpenAPI** - Documentação da API
+- **TypeScript** - Linguagem de programação
+
+## 📋 Pré-requisitos
+
+- Node.js (v18 ou superior)
+- PostgreSQL (v14 ou superior)
+- pnpm, npm ou yarn (recomendado: pnpm)
+- Elasticsearch (opcional, para logs)
+
+## 🔧 Instalação
+
+1. Clone o repositório:
+```bash
+git clone <url-do-repositorio>
+cd backend
+```
+
+2. Instale o pnpm (se ainda não tiver):
+```bash
+npm install -g pnpm
+```
+
+3. Instale as dependências:
+```bash
+# Usando pnpm (recomendado)
+pnpm install
+
+# Ou usando npm
+npm install
+```
+
+3. Configure as variáveis de ambiente:
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com suas configurações:
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/desafio_watch?schema=public"
+
+# JWT
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRES_IN=1d
+
+# Application
+PORT=3000
+NODE_ENV=development
+
+# Elasticsearch (opcional)
+ELASTICSEARCH_NODE=http://localhost:9200
+ELASTICSEARCH_INDEX=desafio-watch-logs
+ELASTICSEARCH_USERNAME=
+ELASTICSEARCH_PASSWORD=
+```
+
+4. Configure o banco de dados:
+```bash
+# Gerar o cliente Prisma
+pnpm run prisma:generate
+# ou: npm run prisma:generate
+
+# Executar migrations
+pnpm run prisma:migrate
+# ou: npm run prisma:migrate
+```
+
+5. (Opcional) Popular o banco com dados de exemplo:
+```bash
+pnpm run prisma:seed
+# ou: npm run prisma:seed
+```
+
+## 🏃 Executando a aplicação
+
+### Desenvolvimento
+```bash
+pnpm run start:dev
+# ou: npm run start:dev
+```
+
+### Produção
+```bash
+pnpm run build
+pnpm run start:prod
+# ou: npm run build && npm run start:prod
+```
+
+A aplicação estará disponível em `http://localhost:3000`
+
+## 📚 Documentação da API
+
+A documentação Swagger está disponível em:
+- **Swagger UI**: http://localhost:3000/api/docs
+
+## 🔐 Autenticação
+
+A API utiliza autenticação JWT. Para acessar endpoints protegidos:
+
+1. Registre um novo usuário:
+```bash
+POST /auth/register
+{
+  "email": "usuario@example.com",
+  "name": "João Silva",
+  "password": "senha123"
+}
+```
+
+2. Faça login:
+```bash
+POST /auth/login
+{
+  "email": "usuario@example.com",
+  "password": "senha123"
+}
+```
+
+3. Use o token retornado no header das requisições:
+```
+Authorization: Bearer <seu-token-jwt>
+```
+
+## 📡 Endpoints
+
+### Autenticação
+- `POST /auth/register` - Registrar novo usuário
+- `POST /auth/login` - Fazer login
+- `GET /auth/profile` - Obter perfil do usuário autenticado (protegido)
+
+### Usuários (todos protegidos)
+- `GET /users` - Listar todos os usuários
+- `GET /users/:id` - Obter usuário por ID
+- `POST /users` - Criar novo usuário
+- `PATCH /users/:id` - Atualizar usuário
+- `DELETE /users/:id` - Remover usuário
+
+## 🗄️ Banco de Dados
+
+### Schema
+
+O schema do banco de dados está definido em `prisma/schema.prisma`.
+
+#### Modelo User
+- `id` (UUID) - Identificador único
+- `email` (String, único) - Email do usuário
+- `name` (String) - Nome do usuário
+- `password` (String) - Senha criptografada
+- `createdAt` (DateTime) - Data de criação
+- `updatedAt` (DateTime) - Data de atualização
+
+### Migrations
+
+Para criar uma nova migration:
+```bash
+pnpm run prisma:migrate
+# ou: npm run prisma:migrate
+```
+
+Para aplicar migrations em produção:
+```bash
+pnpm run prisma:migrate:deploy
+# ou: npm run prisma:migrate:deploy
+```
+
+### Prisma Studio
+
+Para visualizar e gerenciar dados através de uma interface gráfica:
+```bash
+pnpm run prisma:studio
+# ou: npm run prisma:studio
+```
+
+## 📊 Logs e Observabilidade
+
+A aplicação utiliza **Winston** para logging estruturado com suporte a **Elasticsearch/Kibana**.
+
+### Configuração de Logs
+
+Os logs são enviados para:
+- **Console** - Sempre habilitado
+- **Elasticsearch** - Habilitado quando `ELASTICSEARCH_NODE` está configurado
+
+### Estrutura dos Logs
+
+Os logs incluem:
+- Timestamp
+- Nível (info, warn, error, debug)
+- Mensagem
+- Contexto (módulo/serviço)
+- Metadados adicionais
+
+### Visualização no Kibana
+
+1. Configure o índice no Kibana:
+   - Nome do índice: `desafio-watch-logs` (ou o valor de `ELASTICSEARCH_INDEX`)
+   - Padrão de timestamp: `@timestamp`
+
+2. Crie visualizações e dashboards conforme necessário
+
+## 🧪 Testes
+
+### Testes Unitários
+```bash
+pnpm run test
+# ou: npm run test
+```
+
+### Testes com Coverage
+```bash
+pnpm run test:cov
+# ou: npm run test:cov
+```
+
+### Testes em Modo Watch
+```bash
+pnpm run test:watch
+# ou: npm run test:watch
+```
+
+### Testes E2E
+```bash
+pnpm run test:e2e
+# ou: npm run test:e2e
+```
+
+## 🏗️ Estrutura do Projeto
+
+```
+backend/
+├── prisma/
+│   ├── schema.prisma          # Schema do banco de dados
+│   └── seed.ts                 # Script de seed
+├── src/
+│   ├── auth/                   # Módulo de autenticação
+│   │   ├── dto/                # Data Transfer Objects
+│   │   ├── guards/             # Guards de autenticação
+│   │   ├── strategies/         # Estratégias Passport
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   └── auth.module.ts
+│   ├── users/                  # Módulo de usuários
+│   │   ├── dto/
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   └── users.module.ts
+│   ├── common/
+│   │   └── logger/             # Serviço de logging
+│   ├── prisma/                 # Módulo Prisma
+│   ├── app.module.ts           # Módulo raiz
+│   └── main.ts                 # Ponto de entrada
+├── .env.example                # Exemplo de variáveis de ambiente
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## 🔒 Segurança
+
+- Senhas são criptografadas usando **bcrypt** (10 rounds)
+- Tokens JWT com expiração configurável
+- Validação de dados com **class-validator**
+- Proteção de endpoints com guards JWT
+- CORS habilitado (configurável)
+
+## 📝 Scripts Disponíveis
+
+Todos os scripts podem ser executados com `pnpm` ou `npm`:
+
+- `pnpm run build` / `npm run build` - Compilar o projeto
+- `pnpm run start` / `npm run start` - Iniciar em modo produção
+- `pnpm run start:dev` / `npm run start:dev` - Iniciar em modo desenvolvimento
+- `pnpm run start:debug` / `npm run start:debug` - Iniciar em modo debug
+- `pnpm run lint` / `npm run lint` - Executar linter
+- `pnpm run format` / `npm run format` - Formatar código
+- `pnpm run test` / `npm run test` - Executar testes
+- `pnpm run prisma:generate` / `npm run prisma:generate` - Gerar cliente Prisma
+- `pnpm run prisma:migrate` / `npm run prisma:migrate` - Executar migrations
+- `pnpm run prisma:studio` / `npm run prisma:studio` - Abrir Prisma Studio
+
+## 🚀 Deploy
+
+### Variáveis de Ambiente Necessárias
+
+Certifique-se de configurar todas as variáveis de ambiente no ambiente de produção:
+- `DATABASE_URL`
+- `JWT_SECRET` (use um valor seguro e aleatório)
+- `JWT_EXPIRES_IN`
+- `PORT`
+- `NODE_ENV=production`
+- `ELASTICSEARCH_NODE` (se usar Elasticsearch)
+- `ELASTICSEARCH_INDEX`
+- `ELASTICSEARCH_USERNAME` (se necessário)
+- `ELASTICSEARCH_PASSWORD` (se necessário)
+
+### Build para Produção
+
+```bash
+# Usando pnpm
+pnpm run build
+pnpm run prisma:generate
+pnpm run prisma:migrate:deploy
+pnpm run start:prod
+
+# Ou usando npm
+npm run build
+npm run prisma:generate
+npm run prisma:migrate:deploy
+npm run start:prod
+```
+
+## 📄 Licença
+
+MIT
+
+## 👥 Autor
+
+Desenvolvido para o desafio técnico Watch - Fullstack PL/SR
+
