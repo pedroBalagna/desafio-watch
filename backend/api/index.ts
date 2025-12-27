@@ -1,19 +1,17 @@
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import express, { Express } from 'express';
+import { AppModule } from '../src/app.module';
 
-// Lazy load para evitar problemas de compilação
-let app: any;
+let app: Express;
 
-async function bootstrap() {
+async function bootstrap(): Promise<Express> {
   if (app) {
     return app;
   }
-
-  const { NestFactory } = await import('@nestjs/core');
-  const { ExpressAdapter } = await import('@nestjs/platform-express');
-  const { ValidationPipe } = await import('@nestjs/common');
-  const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
-  const express = (await import('express')).default;
-  const { AppModule } = await import('../src/app.module');
 
   const expressApp = express();
 
@@ -25,7 +23,6 @@ async function bootstrap() {
     },
   );
 
-  // Habilitar CORS
   nestApp.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -33,7 +30,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Validação global
   nestApp.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -42,7 +38,6 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger/OpenAPI
   const config = new DocumentBuilder()
     .setTitle('Desafio Watch API')
     .setDescription('API REST para desafio técnico Watch - Fullstack PL/SR')
@@ -75,7 +70,7 @@ export default async function handler(
 ): Promise<void> {
   try {
     const expressApp = await bootstrap();
-    expressApp(req, res);
+    expressApp(req as any, res as any);
   } catch (error) {
     console.error('Handler error:', error);
     res.status(500).json({
