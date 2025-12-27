@@ -84,3 +84,80 @@ variable "jwt_expires_in" {
   default     = "1d"
 }
 
+# =============================================================================
+# Kafka Configuration (Optional)
+# =============================================================================
+
+variable "kafka_brokers" {
+  description = "Kafka brokers endpoint (e.g., localhost:9094 or upstash-kafka-endpoint:9092)"
+  type        = string
+  default     = ""
+}
+
+variable "kafka_username" {
+  description = "Kafka SASL username (required for Upstash/Confluent Cloud)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "kafka_password" {
+  description = "Kafka SASL password (required for Upstash/Confluent Cloud)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "kafka_ssl" {
+  description = "Enable SSL for Kafka connection"
+  type        = bool
+  default     = false
+}
+
+variable "kafka_sasl_mechanism" {
+  description = "Kafka SASL mechanism (plain, scram-sha-256, scram-sha-512)"
+  type        = string
+  default     = ""
+}
+
+# =============================================================================
+# Redis Configuration (Optional)
+# =============================================================================
+
+variable "redis_url" {
+  description = "Redis connection URL (e.g., redis://localhost:6379 or upstash-redis-url)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+# =============================================================================
+# Elasticsearch Configuration (Optional)
+# =============================================================================
+
+variable "elasticsearch_node" {
+  description = "Elasticsearch node URL (e.g., http://localhost:9200)"
+  type        = string
+  default     = ""
+}
+
+variable "elasticsearch_index" {
+  description = "Elasticsearch index name"
+  type        = string
+  default     = "desafio-watch-logs"
+}
+
+variable "elasticsearch_username" {
+  description = "Elasticsearch username (optional)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "elasticsearch_password" {
+  description = "Elasticsearch password (optional)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+

@@ -25,3 +25,53 @@ neon_region = "aws-us-east-1"
 jwt_secret     = "your-super-secret-jwt-key-change-in-production"
 jwt_expires_in = "1d"
 
+# =============================================================================
+# Kafka Configuration (Optional - for production)
+# =============================================================================
+# For local development, use docker-compose.yml
+# For production, use Upstash Kafka, Confluent Cloud, or AWS MSK
+#
+# Example for Upstash Kafka:
+# kafka_brokers      = "your-cluster.upstash.io:9092"
+# kafka_username     = "your-username"
+# kafka_password     = "your-password"
+# kafka_ssl          = true
+# kafka_sasl_mechanism = "scram-sha-256"
+#
+# Leave empty to disable Kafka
+kafka_brokers       = ""
+kafka_username      = ""
+kafka_password      = ""
+kafka_ssl           = false
+kafka_sasl_mechanism = ""
+
+# =============================================================================
+# Redis Configuration (Optional - for production)
+# =============================================================================
+# For local development, use docker-compose.yml
+# For production, use Upstash Redis, AWS ElastiCache, or Redis Cloud
+#
+# Example for Upstash Redis:
+# redis_url = "redis://default:password@your-redis.upstash.io:6379"
+#
+# Leave empty to disable Redis
+redis_url = ""
+
+# =============================================================================
+# Elasticsearch Configuration (Optional)
+# =============================================================================
+# For local development, use docker-compose.yml
+# For production, use AWS Elasticsearch Service or Elastic Cloud
+#
+# Example:
+# elasticsearch_node     = "https://your-cluster.es.amazonaws.com:443"
+# elasticsearch_index    = "desafio-watch-logs"
+# elasticsearch_username = "elastic"
+# elasticsearch_password = "your-password"
+#
+# Leave empty to disable Elasticsearch
+elasticsearch_node     = ""
+elasticsearch_index    = "desafio-watch-logs"
+elasticsearch_username = ""
+elasticsearch_password = ""
+
