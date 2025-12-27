@@ -56,7 +56,12 @@ async function bootstrap(): Promise<Express> {
     .build();
 
   const document = SwaggerModule.createDocument(nestApp, config);
-  SwaggerModule.setup('api/docs', nestApp, document);
+  SwaggerModule.setup('docs', nestApp, document, {
+    customSiteTitle: 'Desafio Watch API',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   await nestApp.init();
   app = expressApp;
