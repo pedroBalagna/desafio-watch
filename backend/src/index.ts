@@ -24,12 +24,14 @@ async function bootstrap(): Promise<express.Application> {
     },
   );
 
-  // Habilitar CORS
+  // Habilitar CORS no NestJS (isso já configura o Express corretamente)
   nestApp.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Validação global
@@ -73,6 +75,24 @@ export default async function handler(
   res: ServerResponse,
 ): Promise<void> {
   try {
+    // Tratar preflight OPTIONS requests explicitamente
+    if (req.method === 'OPTIONS') {
+      res.statusCode = 204;
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+      );
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization',
+      );
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Max-Age', '86400');
+      res.end();
+      return;
+    }
+
     const expressApp = await bootstrap();
     expressApp(req, res);
   } catch (error) {
