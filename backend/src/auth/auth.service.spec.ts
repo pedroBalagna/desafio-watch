@@ -80,7 +80,7 @@ describe('AuthService', () => {
         name: mockUser.name,
       });
     });
-teste deployment error
+    //teste deployment error
     it('deve lançar UnauthorizedException se o usuário não existe', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
 
