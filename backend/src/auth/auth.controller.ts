@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Post,
   Request,
   UseGuards,
@@ -14,10 +13,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -36,15 +33,15 @@ export class AuthController {
     );
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  @HttpCode(200)
-  @ApiOperation({ summary: 'Fazer login' })
-  @ApiResponse({ status: 200, description: 'Login realizado com sucesso' })
-  @ApiResponse({ status: 401, description: 'Credenciais inválidas' })
-  async login(@Body() loginDto: LoginDto, @Request() req) {
-    return this.authService.login(req.user);
-  }
+  // @UseGuards(LocalAuthGuard)
+  // @Post('login')
+  // @HttpCode(200)
+  // @ApiOperation({ summary: 'Fazer login' })
+  // @ApiResponse({ status: 200, description: 'Login realizado com sucesso' })
+  // @ApiResponse({ status: 401, description: 'Credenciais inválidas' })
+  // async login(@Body() loginDto: LoginDto, @Request() req) {
+  //   return this.authService.login(req.user);
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
