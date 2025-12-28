@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/", "destination": "/" },
+    { "source": "/register", "destination": "/register" },
+    { "source": "/products", "destination": "/products" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+} 
