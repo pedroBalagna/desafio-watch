@@ -24,18 +24,20 @@ async function bootstrap(): Promise<express.Application> {
     },
   );
 
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'https://front-desafio-watch.vercel.app/',
-  ];
-
   nestApp.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'https://front-desafio-watch.vercel.app',
+      ];
+
+      if (allowedOrigins.some((o) => origin.startsWith(o))) {
+        return callback(null, true);
       }
+
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
