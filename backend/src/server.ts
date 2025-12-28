@@ -23,16 +23,42 @@ async function createApp(): Promise<Express> {
   // Logger
   app.useLogger(app.get(LoggerService));
 
-  // CORS
+  // CORS - Configuração dinâmica baseada na origem da requisição
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://front-desafio-watch.vercel.app',
+  ];
+
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://front-desafio-watch.vercel.app',
-    ],
+    origin: (origin, callback) => {
+      // Permite requisições sem origem (ex: Postman, mobile apps)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Remove barra no final se existir
+      const normalizedOrigin = origin.replace(/\/$/, '');
+
+      // Verifica se a origem está na lista permitida
+      if (
+        allowedOrigins.some(
+          (allowed) =>
+            normalizedOrigin === allowed ||
+            normalizedOrigin.startsWith(allowed),
+        )
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Validação global
