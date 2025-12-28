@@ -1,19 +1,19 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { LoggerService } from '../common/logger/logger.service';
+import { KafkaService } from '../kafka/kafka.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AdjustStockDto } from './dto/adjust-stock.dto';
 import {
   CreateStockMovementDto,
   MovementType,
 } from './dto/create-stock-movement.dto';
-import { TransferStockDto } from './dto/transfer-stock.dto';
-import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { QueryMovementDto } from './dto/query-movement.dto';
-import { LoggerService } from '../common/logger/logger.service';
-import { KafkaService } from '../kafka/kafka.service';
-import { Prisma } from '@prisma/client';
+import { TransferStockDto } from './dto/transfer-stock.dto';
 
 @Injectable()
 export class StockService {
@@ -247,7 +247,7 @@ export class StockService {
     const toNewStock = toPreviousStock + dto.quantity;
 
     // Executar transferência em transação
-    const [movementOut, movementIn] = await this.prisma.$transaction([
+    await this.prisma.$transaction([
       // Saída do armazém de origem
       this.prisma.stockMovement.create({
         data: {
@@ -503,8 +503,8 @@ export class StockService {
     const [
       totalProducts,
       activeProducts,
-      lowStockProducts,
-      outOfStockProducts,
+      ,
+      ,
       totalWarehouses,
       recentMovements,
       movementsByType,
