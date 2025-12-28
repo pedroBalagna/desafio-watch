@@ -1,6 +1,7 @@
 {
   "buildCommand": "pnpm install && pnpm prisma:generate && pnpm build",
   "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index.js" }],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -23,6 +24,5 @@
         }
       ]
     }
-  ],
-  "routes": [{ "src": "/(.*)", "dest": "/api/index.js" }]
+  ]
 }
