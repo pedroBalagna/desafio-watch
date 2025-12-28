@@ -152,7 +152,7 @@ jobs:
           VERCEL_GIT_COMMIT_SHA: ${{ github.sha }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
@@ -197,7 +197,7 @@ jobs:
           VERCEL_GIT_COMMIT_SHA: ${{ github.sha }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
