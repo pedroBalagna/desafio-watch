@@ -8,7 +8,7 @@ import { LoggerService } from './common/logger/logger.service';
 
 let cachedApp: Express | null = null;
 
-async function createApp(): Promise<Express> {
+export async function createApp(): Promise<Express> {
   if (cachedApp) {
     return cachedApp;
   }
