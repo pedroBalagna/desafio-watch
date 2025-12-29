@@ -7,7 +7,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.0.0",
   "scripts": {
-    "build": "pnpm rebuild bcrypt && prisma generate && nest build",
+    "build": "prisma generate && nest build",
     "build:vercel": "nest build && cp -r dist api",
     "vercel-build": "pnpm run build",
     "format": "prettier --write \"src/**/*.ts\" \"prisma/**/*.ts\"",
@@ -80,6 +80,15 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "esbuild"
+    ]
   },
   "jest": {
     "moduleFileExtensions": [
