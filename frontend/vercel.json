@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm run build",
   "rewrites": [
     { "source": "/", "destination": "/" },
     { "source": "/register", "destination": "/register" },
@@ -11,4 +13,4 @@
       "NODE_ENV": "production"
     }
   }
-} 
+}
