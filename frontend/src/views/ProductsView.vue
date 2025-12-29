@@ -2,7 +2,6 @@
 import { productService, type Product } from "@/services/products";
 import { onMounted, ref } from "vue";
 import ButtonAct from "../components/ui/ButtonAct.vue";
-import CardsProduct from "../components/ui/CardsProduct.vue";
 import CreateProductDialog from "../components/ui/CreateProductDialog.vue";
 import DialogConfirm from "../components/ui/DialogConfirm.vue";
 import EditProductDialog from "../components/ui/EditProductDialog.vue";
@@ -70,19 +69,93 @@ const openEditDialog = async (productId: string) => {
     console.error("Erro ao carregar produto:", error);
   }
 };
+
+const handleDelete = (productId: string) => {
+  selectedProductId.value = productId;
+  isDeleteDialogOpen.value = true;
+};
+
+const formatPrice = (price: number | string) => {
+  const numPrice = typeof price === "string" ? parseFloat(price) : price;
+  if (isNaN(numPrice)) {
+    return "R$ 0,00";
+  }
+  return `R$ ${numPrice.toFixed(2).replace(".", ",")}`;
+};
+
+const getStockLabel = (currentStock: number, minStock: number) => {
+  if (currentStock === 0) {
+    return "Sem Estoque";
+  } else if (currentStock <= minStock) {
+    return "Estoque Baixo";
+  }
+  return "Em Estoque";
+};
+
+const getStockColor = (currentStock: number, minStock: number) => {
+  if (currentStock === 0) {
+    return "error";
+  } else if (currentStock <= minStock) {
+    return "warning";
+  }
+  return "success";
+};
+
+const headers = [
+  { title: "SKU", key: "sku", sortable: true },
+  { title: "Nome", key: "name", sortable: true },
+  { title: "Categoria", key: "category", sortable: false },
+  { title: "Estoque", key: "currentStock", sortable: true },
+  { title: "Status", key: "status", sortable: false },
+  { title: "Preço", key: "unitPrice", sortable: true },
+  { title: "Ações", key: "actions", sortable: false, align: "end" },
+];
 </script>
 
 <template>
-  <div class="d-flex flex-column justify-center align-center h-auto">
-    <ButtonAct buttonText="Criar Produto" @click="isCreateDialogOpen = true" />
-    <div class="d-flex w-screen flex-wrap justify-center align-center">
-      <CardsProduct
-        v-for="product in products"
-        :key="product.id"
-        :product="product"
-        @open="openEditDialog(product.id)"
-      />
+  <div class="d-flex flex-column pa-4">
+    <div class="d-flex justify-end mb-4">
+      <ButtonAct buttonText="Criar Produto" @click="isCreateDialogOpen = true" />
     </div>
+
+    <v-card>
+      <v-data-table :items="products" :headers="headers" item-value="id" class="elevation-1">
+        <template v-slot:item.category="{ item }">
+          {{ item.category?.name || "Sem categoria" }}
+        </template>
+
+        <template v-slot:item.currentStock="{ item }">
+          {{ item.currentStock }} {{ item.unit }}
+        </template>
+
+        <template v-slot:item.status="{ item }">
+          <v-chip :color="getStockColor(item.currentStock, item.minStock)" size="small" variant="flat">
+            {{ getStockLabel(item.currentStock, item.minStock) }}
+          </v-chip>
+        </template>
+
+        <template v-slot:item.unitPrice="{ item }">
+          {{ formatPrice(item.unitPrice) }}
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-btn
+            icon="mdi-pencil"
+            variant="text"
+            size="small"
+            color="primary"
+            @click="openEditDialog(item.id)"
+          ></v-btn>
+          <v-btn
+            icon="mdi-delete"
+            variant="text"
+            size="small"
+            color="error"
+            @click="handleDelete(item.id)"
+          ></v-btn>
+        </template>
+      </v-data-table>
+    </v-card>
 
     <CreateProductDialog
       v-model:isOpen="isCreateDialogOpen"

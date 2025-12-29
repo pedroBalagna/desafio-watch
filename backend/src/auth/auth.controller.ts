@@ -36,7 +36,6 @@ export class AuthController {
     );
   }
 
-  //teste deployment
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
