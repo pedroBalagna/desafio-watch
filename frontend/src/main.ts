@@ -1,26 +1,27 @@
-import './styles.css'
-import 'vuetify/styles'
-import '@mdi/font/css/materialdesignicons.css'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+import "@mdi/font/css/materialdesignicons.css";
+import { createApp } from "vue";
+import { createVuetify } from "vuetify";
+import * as components from "vuetify/components";
+import * as directives from "vuetify/directives";
+import "vuetify/styles";
+import App from "./App.vue";
+import router from "./router";
+import "./styles.css";
 // Importar configuração do axios para inicializar interceptors
-import '@/config/axios'
+import "@/config/axios";
 
 const vuetify = createVuetify({
   components,
   directives,
   icons: {
-    defaultSet: 'mdi'
+    defaultSet: "mdi",
   },
-})
+});
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(vuetify)
-app.use(router)
+app.use(vuetify);
+app.use(router);
 
-app.mount('#app')
+app.mount("#app");
+//deploy teste
