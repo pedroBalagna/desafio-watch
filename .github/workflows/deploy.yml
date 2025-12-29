@@ -168,7 +168,6 @@ jobs:
     name: Deploy Frontend to Vercel
     runs-on: ubuntu-latest
     environment: "[Frontend] [Prod] Desafio Watch"
-
     needs: [check-changes, test-frontend]
     if: needs.check-changes.outputs.frontend == 'true' && needs.test-frontend.result == 'success' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
