@@ -13,11 +13,20 @@ async function createApp(): Promise<Express> {
     return cachedApp;
   }
 
+  // Verificar variáveis de ambiente críticas
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
+
   const expressApp = express();
   const adapter = new ExpressAdapter(expressApp);
 
   const app = await NestFactory.create(AppModule, adapter, {
     bufferLogs: true,
+    logger: ['error', 'warn', 'log'],
   });
 
   // Logger
@@ -97,6 +106,20 @@ async function createApp(): Promise<Express> {
 }
 
 export default async function handler(req: Request, res: Response) {
-  const app = await createApp();
-  app(req, res);
+  try {
+    const app = await createApp();
+    app(req, res);
+  } catch (error) {
+    console.error('Handler error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack:
+        process.env.NODE_ENV !== 'production'
+          ? error instanceof Error
+            ? error.stack
+            : undefined
+          : undefined,
+    });
+  }
 }
