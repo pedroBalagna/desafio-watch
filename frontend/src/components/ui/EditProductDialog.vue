@@ -3,7 +3,7 @@
     <v-card>
       <v-toolbar>
         <v-btn icon="mdi-close" @click="handleClose"></v-btn>
-        <v-toolbar-title>{{ product?.name || 'Editar Produto' }}</v-toolbar-title>
+        <v-toolbar-title>{{ product?.name || "Editar Produto" }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn
@@ -127,11 +127,7 @@
           </v-col>
         </v-row>
 
-        <v-switch
-          v-model="formData.isActive"
-          label="Produto Ativo"
-          color="primary"
-        ></v-switch>
+        <v-switch v-model="formData.isActive" label="Produto Ativo" color="primary"></v-switch>
       </v-list>
 
       <v-list v-if="product">
@@ -154,87 +150,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import type { Product } from '@/services/products'
-import { categoryService, type Category } from '@/services/categories'
-import { supplierService, type Supplier } from '@/services/suppliers'
+import { categoryService, type Category } from "@/services/categories";
+import type { Product } from "@/services/products";
+import { supplierService, type Supplier } from "@/services/suppliers";
+import { onMounted, ref, watch } from "vue";
 
 interface Props {
-  isOpen: boolean
-  product?: Product
+  isOpen: boolean;
+  product?: Product;
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits(['update:isOpen', 'submit', 'delete'])
+const props = defineProps<Props>();
+const emit = defineEmits(["update:isOpen", "submit", "delete"]);
 
-const dialogOpen = ref(props.isOpen)
-const categories = ref<Category[]>([])
-const suppliers = ref<Supplier[]>([])
+const dialogOpen = ref(props.isOpen);
+const categories = ref<Category[]>([]);
+const suppliers = ref<Supplier[]>([]);
 
 const formData = ref({
-  sku: '',
-  name: '',
-  description: '',
+  sku: "",
+  name: "",
+  description: "",
   categoryId: undefined as string | undefined,
   supplierId: undefined as string | undefined,
   unitPrice: 0,
   costPrice: 0,
   minStock: 0,
   maxStock: undefined as number | undefined,
-  unit: 'UN',
-  isActive: true
-})
+  unit: "UN",
+  isActive: true,
+});
 
-watch(() => props.isOpen, (newValue) => {
-  dialogOpen.value = newValue
-  if (newValue) {
-    loadCategories()
-    loadSuppliers()
-  }
-})
-
-watch(dialogOpen, (newValue) => {
-  emit('update:isOpen', newValue)
-})
-
-watch(() => props.product, (newProduct) => {
-  if (newProduct) {
-    formData.value = {
-      sku: newProduct.sku,
-      name: newProduct.name,
-      description: newProduct.description || '',
-      categoryId: newProduct.categoryId || undefined,
-      supplierId: newProduct.supplierId || undefined,
-      unitPrice: Number(newProduct.unitPrice),
-      costPrice: Number(newProduct.costPrice),
-      minStock: newProduct.minStock,
-      maxStock: newProduct.maxStock || undefined,
-      unit: newProduct.unit,
-      isActive: newProduct.isActive
+watch(
+  () => props.isOpen,
+  (newValue) => {
+    dialogOpen.value = newValue;
+    if (newValue) {
+      loadCategories();
+      loadSuppliers();
     }
   }
-}, { immediate: true })
+);
+
+watch(dialogOpen, (newValue) => {
+  emit("update:isOpen", newValue);
+});
+
+watch(
+  () => props.product,
+  (newProduct) => {
+    if (newProduct) {
+      formData.value = {
+        sku: newProduct.sku,
+        name: newProduct.name,
+        description: newProduct.description || "",
+        categoryId: newProduct.categoryId || undefined,
+        supplierId: newProduct.supplierId || undefined,
+        unitPrice: Number(newProduct.unitPrice),
+        costPrice: Number(newProduct.costPrice),
+        minStock: newProduct.minStock,
+        maxStock: newProduct.maxStock || undefined,
+        unit: newProduct.unit,
+        isActive: newProduct.isActive,
+      };
+    }
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
-  loadCategories()
-  loadSuppliers()
-})
+  loadCategories();
+  loadSuppliers();
+});
 
 const loadCategories = async () => {
   try {
-    categories.value = await categoryService.getAllCategories()
+    categories.value = await categoryService.getAllCategories();
   } catch (error) {
-    console.error('Erro ao carregar categorias:', error)
+    console.error("Erro ao carregar categorias:", error);
   }
-}
+};
 
 const loadSuppliers = async () => {
   try {
-    suppliers.value = await supplierService.getAllSuppliers()
+    suppliers.value = await supplierService.getAllSuppliers();
   } catch (error) {
-    console.error('Erro ao carregar fornecedores:', error)
+    console.error("Erro ao carregar fornecedores:", error);
   }
-}
+};
 
 const handleSubmit = () => {
   const submitData: Partial<Product> = {
@@ -245,30 +248,30 @@ const handleSubmit = () => {
     costPrice: formData.value.costPrice,
     minStock: formData.value.minStock || 0,
     unit: formData.value.unit,
-    isActive: formData.value.isActive
-  }
+    isActive: formData.value.isActive,
+  };
 
   if (formData.value.categoryId) {
-    submitData.categoryId = formData.value.categoryId
+    submitData.categoryId = formData.value.categoryId;
   } else {
-    submitData.categoryId = null
+    submitData.categoryId = undefined;
   }
   if (formData.value.supplierId) {
-    submitData.supplierId = formData.value.supplierId
+    submitData.supplierId = formData.value.supplierId;
   } else {
-    submitData.supplierId = null
+    submitData.supplierId = undefined;
   }
   if (formData.value.maxStock !== undefined && formData.value.maxStock > 0) {
-    submitData.maxStock = formData.value.maxStock
+    submitData.maxStock = formData.value.maxStock;
   } else {
-    submitData.maxStock = null
+    submitData.maxStock = undefined;
   }
 
-  emit('submit', submitData)
-  handleClose()
-}
+  emit("submit", submitData);
+  handleClose();
+};
 
 const handleClose = () => {
-  dialogOpen.value = false
-}
+  dialogOpen.value = false;
+};
 </script>
