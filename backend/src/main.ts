@@ -1,3 +1,6 @@
+// IMPORTANTE: Importar instrumentacao ANTES de tudo para registrar OpenTelemetry
+import './instrumentation';
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {

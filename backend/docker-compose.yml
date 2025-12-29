@@ -16,43 +16,18 @@ services:
       timeout: 5s
       retries: 5
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.16
-    container_name: desafio-watch-elasticsearch
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: desafio-watch-jaeger
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - COLLECTOR_OTLP_ENABLED=true
     ports:
-      - '9200:9200'
-      - '9300:9300'
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
+      - '16686:16686'  # Jaeger UI
+      - '14268:14268'  # Jaeger collector HTTP
+      - '4317:4317'    # OTLP gRPC receiver
+      - '4318:4318'    # OTLP HTTP receiver
     healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'curl -fs http://localhost:9200/_cluster/health || exit 1',
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.16
-    container_name: desafio-watch-kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - xpack.security.enabled=false
-    ports:
-      - '5601:5601'
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:5601/api/status || exit 1']
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:16686']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -127,5 +102,4 @@ services:
 
 volumes:
   postgres_data:
-  elasticsearch_data:
   redis_data:

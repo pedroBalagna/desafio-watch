@@ -1,7 +1,7 @@
 import { Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { trace as otelTrace } from '@opentelemetry/api';
 import * as winston from 'winston';
-import { ElasticsearchTransport } from 'winston-elasticsearch';
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
@@ -24,67 +24,6 @@ export class LoggerService implements NestLoggerService {
       }),
     ];
 
-    // Configurar Elasticsearch se as variáveis estiverem definidas
-    const elasticsearchNode =
-      this.configService.get<string>('ELASTICSEARCH_NODE');
-    const elasticsearchIndex =
-      this.configService.get<string>('ELASTICSEARCH_INDEX') ||
-      'desafio-watch-logs';
-    const elasticsearchUsername = this.configService.get<string>(
-      'ELASTICSEARCH_USERNAME',
-    );
-    const elasticsearchPassword = this.configService.get<string>(
-      'ELASTICSEARCH_PASSWORD',
-    );
-
-    if (elasticsearchNode) {
-      const esTransportOpts: any = {
-        level: 'info',
-        ensureIndexTemplate: true,
-        clientOpts: {
-          node: elasticsearchNode,
-          ...(elasticsearchUsername && elasticsearchPassword
-            ? {
-                auth: {
-                  username: elasticsearchUsername,
-                  password: elasticsearchPassword,
-                },
-              }
-            : {}),
-        },
-        index: elasticsearchIndex,
-        indexTemplate: {
-          settings: {
-            number_of_shards: 1,
-            number_of_replicas: 0,
-          },
-          mappings: {
-            properties: {
-              '@timestamp': { type: 'date' },
-              level: { type: 'keyword' },
-              message: { type: 'text' },
-              context: { type: 'keyword' },
-            },
-          },
-        },
-        transformer: (logData: any) => {
-          return {
-            '@timestamp': new Date().toISOString(),
-            level: logData.level,
-            message: logData.message,
-            context: logData.context || 'Application',
-            ...logData.meta,
-          };
-        },
-      };
-
-      try {
-        transports.push(new ElasticsearchTransport(esTransportOpts));
-      } catch (error) {
-        console.error('Erro ao configurar Elasticsearch transport:', error);
-      }
-    }
-
     this.logger = winston.createLogger({
       level: this.configService.get<string>('LOG_LEVEL') || 'info',
       format: winston.format.combine(
@@ -97,22 +36,96 @@ export class LoggerService implements NestLoggerService {
   }
 
   log(message: string, context?: string) {
-    this.logger.info(message, { context });
+    const activeSpan = otelTrace.getActiveSpan();
+    const spanContext = activeSpan?.spanContext();
+
+    this.logger.info(message, {
+      context,
+      traceId: spanContext?.traceId,
+      spanId: spanContext?.spanId,
+    });
+
+    // Adicionar evento ao span do OpenTelemetry
+    if (activeSpan) {
+      activeSpan.addEvent(message, {
+        context,
+        level: 'info',
+      });
+    }
   }
 
   error(message: string, trace?: string, context?: string) {
-    this.logger.error(message, { trace, context });
+    const activeSpan = otelTrace.getActiveSpan();
+    const spanContext = activeSpan?.spanContext();
+
+    this.logger.error(message, {
+      trace,
+      context,
+      traceId: spanContext?.traceId,
+      spanId: spanContext?.spanId,
+    });
+
+    // Adicionar evento de erro ao span do OpenTelemetry
+    if (activeSpan) {
+      activeSpan.recordException(new Error(message));
+      activeSpan.setStatus({ code: 2, message }); // ERROR status
+    }
   }
 
   warn(message: string, context?: string) {
-    this.logger.warn(message, { context });
+    const activeSpan = otelTrace.getActiveSpan();
+    const spanContext = activeSpan?.spanContext();
+
+    this.logger.warn(message, {
+      context,
+      traceId: spanContext?.traceId,
+      spanId: spanContext?.spanId,
+    });
+
+    // Adicionar evento ao span do OpenTelemetry
+    if (activeSpan) {
+      activeSpan.addEvent(message, {
+        context,
+        level: 'warn',
+      });
+    }
   }
 
   debug(message: string, context?: string) {
-    this.logger.debug(message, { context });
+    const activeSpan = otelTrace.getActiveSpan();
+    const spanContext = activeSpan?.spanContext();
+
+    this.logger.debug(message, {
+      context,
+      traceId: spanContext?.traceId,
+      spanId: spanContext?.spanId,
+    });
+
+    // Adicionar evento ao span do OpenTelemetry
+    if (activeSpan) {
+      activeSpan.addEvent(message, {
+        context,
+        level: 'debug',
+      });
+    }
   }
 
   verbose(message: string, context?: string) {
-    this.logger.verbose(message, { context });
+    const activeSpan = otelTrace.getActiveSpan();
+    const spanContext = activeSpan?.spanContext();
+
+    this.logger.verbose(message, {
+      context,
+      traceId: spanContext?.traceId,
+      spanId: spanContext?.spanId,
+    });
+
+    // Adicionar evento ao span do OpenTelemetry
+    if (activeSpan) {
+      activeSpan.addEvent(message, {
+        context,
+        level: 'verbose',
+      });
+    }
   }
 }

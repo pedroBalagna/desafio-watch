@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { LoggerModule } from './common/logger/logger.module';
+import { TelemetryModule } from './common/telemetry/telemetry.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { ProductsModule } from './products/products.module';
@@ -19,6 +20,7 @@ import { KafkaModule } from './kafka/kafka.module';
     }),
     PrismaModule,
     LoggerModule,
+    TelemetryModule,
     KafkaModule,
     AuthModule,
     UsersModule,

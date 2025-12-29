@@ -8,7 +8,8 @@ API REST desenvolvida com NestJS para o desafio técnico Watch - Fullstack PL/SR
 - **Prisma** - ORM para PostgreSQL
 - **PostgreSQL** - Banco de dados relacional
 - **JWT** - Autenticação baseada em tokens
-- **Winston** + **Elasticsearch** - Sistema de logs estruturados
+- **Winston** - Sistema de logs estruturados
+- **OpenTelemetry** + **Jaeger** - Observabilidade e tracing distribuído
 - **Swagger/OpenAPI** - Documentação da API
 - **TypeScript** - Linguagem de programação
 
@@ -17,22 +18,25 @@ API REST desenvolvida com NestJS para o desafio técnico Watch - Fullstack PL/SR
 - Node.js (v18 ou superior)
 - PostgreSQL (v14 ou superior)
 - pnpm, npm ou yarn (recomendado: pnpm)
-- Elasticsearch (opcional, para logs)
+- Docker e Docker Compose (opcional, para serviços como Jaeger)
 
 ## 🔧 Instalação
 
 1. Clone o repositório:
+
 ```bash
 git clone <url-do-repositorio>
 cd backend
 ```
 
 2. Instale o pnpm (se ainda não tiver):
+
 ```bash
 npm install -g pnpm
 ```
 
 3. Instale as dependências:
+
 ```bash
 # Usando pnpm (recomendado)
 pnpm install
@@ -42,11 +46,13 @@ npm install
 ```
 
 3. Configure as variáveis de ambiente:
+
 ```bash
 cp .env.example .env
 ```
 
 Edite o arquivo `.env` com suas configurações:
+
 ```env
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/desafio_watch?schema=public"
@@ -58,15 +64,16 @@ JWT_EXPIRES_IN=1d
 # Application
 PORT=3000
 NODE_ENV=development
+LOG_LEVEL=info
 
-# Elasticsearch (opcional)
-ELASTICSEARCH_NODE=http://localhost:9200
-ELASTICSEARCH_INDEX=desafio-watch-logs
-ELASTICSEARCH_USERNAME=
-ELASTICSEARCH_PASSWORD=
+# OpenTelemetry / Jaeger (opcional)
+ENABLE_TELEMETRY=true
+OTLP_ENDPOINT=http://localhost:4318/v1/traces
+SERVICE_NAME=desafio-watch-backend
 ```
 
 4. Configure o banco de dados:
+
 ```bash
 # Gerar o cliente Prisma
 pnpm run prisma:generate
@@ -78,6 +85,7 @@ pnpm run prisma:migrate
 ```
 
 5. (Opcional) Popular o banco com dados de exemplo:
+
 ```bash
 pnpm run prisma:seed
 # ou: npm run prisma:seed
@@ -86,12 +94,14 @@ pnpm run prisma:seed
 ## 🏃 Executando a aplicação
 
 ### Desenvolvimento
+
 ```bash
 pnpm run start:dev
 # ou: npm run start:dev
 ```
 
 ### Produção
+
 ```bash
 pnpm run build
 pnpm run start:prod
@@ -103,6 +113,7 @@ A aplicação estará disponível em `http://localhost:3000`
 ## 📚 Documentação da API
 
 A documentação Swagger está disponível em:
+
 - **Swagger UI**: http://localhost:3000/api/docs
 
 ## 🔐 Autenticação
@@ -110,6 +121,7 @@ A documentação Swagger está disponível em:
 A API utiliza autenticação JWT. Para acessar endpoints protegidos:
 
 1. Registre um novo usuário:
+
 ```bash
 POST /auth/register
 {
@@ -120,6 +132,7 @@ POST /auth/register
 ```
 
 2. Faça login:
+
 ```bash
 POST /auth/login
 {
@@ -129,6 +142,7 @@ POST /auth/login
 ```
 
 3. Use o token retornado no header das requisições:
+
 ```
 Authorization: Bearer <seu-token-jwt>
 ```
@@ -136,11 +150,13 @@ Authorization: Bearer <seu-token-jwt>
 ## 📡 Endpoints
 
 ### Autenticação
+
 - `POST /auth/register` - Registrar novo usuário
 - `POST /auth/login` - Fazer login
 - `GET /auth/profile` - Obter perfil do usuário autenticado (protegido)
 
 ### Usuários (todos protegidos)
+
 - `GET /users` - Listar todos os usuários
 - `GET /users/:id` - Obter usuário por ID
 - `POST /users` - Criar novo usuário
@@ -154,6 +170,7 @@ Authorization: Bearer <seu-token-jwt>
 O schema do banco de dados está definido em `prisma/schema.prisma`.
 
 #### Modelo User
+
 - `id` (UUID) - Identificador único
 - `email` (String, único) - Email do usuário
 - `name` (String) - Nome do usuário
@@ -164,12 +181,14 @@ O schema do banco de dados está definido em `prisma/schema.prisma`.
 ### Migrations
 
 Para criar uma nova migration:
+
 ```bash
 pnpm run prisma:migrate
 # ou: npm run prisma:migrate
 ```
 
 Para aplicar migrations em produção:
+
 ```bash
 pnpm run prisma:migrate:deploy
 # ou: npm run prisma:migrate:deploy
@@ -178,6 +197,7 @@ pnpm run prisma:migrate:deploy
 ### Prisma Studio
 
 Para visualizar e gerenciar dados através de uma interface gráfica:
+
 ```bash
 pnpm run prisma:studio
 # ou: npm run prisma:studio
@@ -185,52 +205,66 @@ pnpm run prisma:studio
 
 ## 📊 Logs e Observabilidade
 
-A aplicação utiliza **Winston** para logging estruturado com suporte a **Elasticsearch/Kibana**.
+A aplicação utiliza **Winston** para logging estruturado e **OpenTelemetry** com **Jaeger** para tracing e monitoramento distribuído.
 
 ### Configuração de Logs
 
 Os logs são enviados para:
-- **Console** - Sempre habilitado
-- **Elasticsearch** - Habilitado quando `ELASTICSEARCH_NODE` está configurado
+
+- **Console** - Sempre habilitado (formato colorido e estruturado)
+- **OpenTelemetry/Jaeger** - Habilitado quando `ENABLE_TELEMETRY` não está definido como `false`
 
 ### Estrutura dos Logs
 
 Os logs incluem:
+
 - Timestamp
-- Nível (info, warn, error, debug)
+- Nível (info, warn, error, debug, verbose)
 - Mensagem
 - Contexto (módulo/serviço)
+- Trace ID e Span ID (quando disponível via OpenTelemetry)
 - Metadados adicionais
 
-### Visualização no Kibana
+### Visualização no Jaeger
 
-1. Configure o índice no Kibana:
-   - Nome do índice: `desafio-watch-logs` (ou o valor de `ELASTICSEARCH_INDEX`)
-   - Padrão de timestamp: `@timestamp`
+1. Acesse a interface do Jaeger em: `http://localhost:16686`
+2. Selecione o serviço `desafio-watch-backend` (ou o valor de `SERVICE_NAME`)
+3. Visualize traces, spans e logs correlacionados
+4. Analise performance, latência e dependências entre serviços
 
-2. Crie visualizações e dashboards conforme necessário
+### Configuração OpenTelemetry
+
+O OpenTelemetry está configurado para:
+
+- **Tracing automático** de requisições HTTP, chamadas de banco de dados, e outras operações
+- **Correlação de logs** com traces através de Trace ID e Span ID
+- **Exportação para Jaeger** via OTLP (OpenTelemetry Protocol)
 
 ## 🧪 Testes
 
 ### Testes Unitários
+
 ```bash
 pnpm run test
 # ou: npm run test
 ```
 
 ### Testes com Coverage
+
 ```bash
 pnpm run test:cov
 # ou: npm run test:cov
 ```
 
 ### Testes em Modo Watch
+
 ```bash
 pnpm run test:watch
 # ou: npm run test:watch
 ```
 
 ### Testes E2E
+
 ```bash
 pnpm run test:e2e
 # ou: npm run test:e2e
@@ -275,17 +309,19 @@ backend/
 Este projeto possui dois arquivos de entrada para suportar diferentes ambientes de execução:
 
 #### `src/main.ts` - Desenvolvimento Local
+
 - **Propósito**: Inicia um servidor HTTP tradicional que fica sempre ativo
 - **Quando é usado**: Durante desenvolvimento local (`pnpm start:dev`) ou em produção tradicional
-- **Como funciona**: 
+- **Como funciona**:
   - Cria a aplicação NestJS com Fastify
   - Inicia um servidor que escuta em uma porta específica (`app.listen(port)`)
   - O servidor fica rodando continuamente, processando múltiplas requisições
-- **Vantagens**: 
+- **Vantagens**:
   - Melhor para desenvolvimento (hot reload, debug)
   - Ideal para ambientes tradicionais (servidores dedicados, containers)
 
 #### `api/index.ts` - Deploy no Vercel (Serverless)
+
 - **Propósito**: Handler serverless para o Vercel Functions
 - **Quando é usado**: Apenas durante o deploy no Vercel
 - **Como funciona**:
@@ -301,13 +337,13 @@ Este projeto possui dois arquivos de entrada para suportar diferentes ambientes 
 
 #### Resumo
 
-| Aspecto | `main.ts` | `api/index.ts` |
-|---------|-----------|----------------|
-| Ambiente | Desenvolvimento/Produção tradicional | Vercel Functions (Serverless) |
-| Execução | Servidor sempre ativo | Função executada sob demanda |
-| Interface | `app.listen(port)` | `export default handler(req, res)` |
-| Quando usar | `pnpm start:dev`, `pnpm start:prod` | Deploy automático no Vercel |
-| Cache | Não necessário | Sim (melhora performance) |
+| Aspecto     | `main.ts`                            | `api/index.ts`                     |
+| ----------- | ------------------------------------ | ---------------------------------- |
+| Ambiente    | Desenvolvimento/Produção tradicional | Vercel Functions (Serverless)      |
+| Execução    | Servidor sempre ativo                | Função executada sob demanda       |
+| Interface   | `app.listen(port)`                   | `export default handler(req, res)` |
+| Quando usar | `pnpm start:dev`, `pnpm start:prod`  | Deploy automático no Vercel        |
+| Cache       | Não necessário                       | Sim (melhora performance)          |
 
 **Nota**: Ambos os arquivos compartilham a mesma configuração da aplicação (CORS, validação, Swagger, etc.), garantindo comportamento consistente entre ambientes.
 
@@ -353,15 +389,16 @@ Para ambientes tradicionais, use o arquivo `src/main.ts`.
 ### Variáveis de Ambiente Necessárias
 
 Certifique-se de configurar todas as variáveis de ambiente no ambiente de produção:
+
 - `DATABASE_URL`
 - `JWT_SECRET` (use um valor seguro e aleatório)
 - `JWT_EXPIRES_IN`
 - `PORT` (apenas para deploy tradicional)
 - `NODE_ENV=production`
-- `ELASTICSEARCH_NODE` (se usar Elasticsearch)
-- `ELASTICSEARCH_INDEX`
-- `ELASTICSEARCH_USERNAME` (se necessário)
-- `ELASTICSEARCH_PASSWORD` (se necessário)
+- `LOG_LEVEL` (opcional, padrão: `info`)
+- `ENABLE_TELEMETRY` (opcional, padrão: `true`)
+- `OTLP_ENDPOINT` (opcional, padrão: `http://localhost:4318/v1/traces`)
+- `SERVICE_NAME` (opcional, padrão: `desafio-watch-backend`)
 
 ### Build para Produção (Deploy Tradicional)
 
@@ -386,4 +423,3 @@ MIT
 ## 👥 Autor
 
 Desenvolvido para o desafio técnico Watch - Fullstack PL/SR
-

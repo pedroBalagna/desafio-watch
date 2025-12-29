@@ -14,11 +14,11 @@ JWT_EXPIRES_IN=1d
 PORT=3000
 NODE_ENV=development
 
-# Elasticsearch (opcional)
-ELASTICSEARCH_NODE=http://localhost:9200
-ELASTICSEARCH_INDEX=desafio-watch-logs
-ELASTICSEARCH_USERNAME=
-ELASTICSEARCH_PASSWORD=
+# OpenTelemetry / Jaeger (opcional)
+ENABLE_TELEMETRY=true
+OTLP_ENDPOINT=http://localhost:4318/v1/traces
+SERVICE_NAME=desafio-watch-backend
+LOG_LEVEL=info
 
 # Kafka (opcional)
 # Porta 9094 é a porta externa mapeada no docker-compose.yml para acesso do host
@@ -53,17 +53,21 @@ Porta em que a aplicação será executada. Padrão: `3000`
 
 Ambiente de execução: `development`, `production`, `test`
 
-### ELASTICSEARCH_NODE
+### ENABLE_TELEMETRY
 
-URL do nó Elasticsearch. Deixe vazio se não usar Elasticsearch.
+Habilitar ou desabilitar OpenTelemetry. Valores: `true` ou `false`. Padrão: `true`
 
-### ELASTICSEARCH_INDEX
+### OTLP_ENDPOINT
 
-Nome do índice no Elasticsearch onde os logs serão armazenados.
+Endpoint OTLP (OpenTelemetry Protocol) para envio de traces. Padrão: `http://localhost:4318/v1/traces`
 
-### ELASTICSEARCH_USERNAME e ELASTICSEARCH_PASSWORD
+### SERVICE_NAME
 
-Credenciais para autenticação no Elasticsearch (opcional, apenas se necessário).
+Nome do serviço para identificação no Jaeger. Padrão: `desafio-watch-backend`
+
+### LOG_LEVEL
+
+Nível de log do Winston. Valores: `error`, `warn`, `info`, `debug`, `verbose`. Padrão: `info`
 
 ### Kafka
 
@@ -98,8 +102,10 @@ JWT_SECRET=development-secret-key
 JWT_EXPIRES_IN=1d
 PORT=3000
 NODE_ENV=development
-ELASTICSEARCH_NODE=http://localhost:9200
-ELASTICSEARCH_INDEX=desafio-watch-logs
+ENABLE_TELEMETRY=true
+OTLP_ENDPOINT=http://localhost:4318/v1/traces
+SERVICE_NAME=desafio-watch-backend
+LOG_LEVEL=info
 KAFKA_BROKERS=localhost:9094
 KAFKA_CLIENT_ID=inventory-api
 KAFKA_SSL=false
