@@ -25,8 +25,4 @@
     await authService.logout()
     router.push('/')
   }
-
-  const items = [
-    { title: 'Sair', onClick: handleLogout }
-  ]
 </script>

@@ -16,7 +16,7 @@ interface Props {
   buttonText?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   buttonText: 'Click me'
 })
 

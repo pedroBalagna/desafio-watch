@@ -23,7 +23,9 @@ onMounted(async () => {
   }
 });
 
-const handleCreateSubmit = async (formData: any) => {
+const handleCreateSubmit = async (
+  formData: Omit<Product, "id" | "createdAt" | "updatedAt" | "category" | "supplier">
+) => {
   try {
     const newProduct = await productService.createProduct(formData);
     products.value.push(newProduct);
@@ -54,7 +56,7 @@ const handleDeleteConfirm = async () => {
     products.value = products.value.filter((p) => p.id !== selectedProductId.value);
     isDeleteDialogOpen.value = false;
     deleteError.value = "";
-  } catch (error: any) {
+  } catch (error: unknown) {
     deleteError.value = "Erro ao excluir produto. Tente novamente.";
     console.error("Erro ao excluir produto:", error);
   }
@@ -108,7 +110,7 @@ const headers = [
   { title: "Estoque", key: "currentStock", sortable: true },
   { title: "Status", key: "status", sortable: false },
   { title: "Preço", key: "unitPrice", sortable: true },
-  { title: "Ações", key: "actions", sortable: false, align: "end" },
+  { title: "Ações", key: "actions", sortable: false, align: "end" as const },
 ];
 </script>
 
@@ -120,25 +122,29 @@ const headers = [
 
     <v-card>
       <v-data-table :items="products" :headers="headers" item-value="id" class="elevation-1">
-        <template v-slot:item.category="{ item }">
+        <template v-slot:[`item.category`]="{ item }">
           {{ item.category?.name || "Sem categoria" }}
         </template>
 
-        <template v-slot:item.currentStock="{ item }">
+        <template v-slot:[`item.currentStock`]="{ item }">
           {{ item.currentStock }} {{ item.unit }}
         </template>
 
-        <template v-slot:item.status="{ item }">
-          <v-chip :color="getStockColor(item.currentStock, item.minStock)" size="small" variant="flat">
+        <template v-slot:[`item.status`]="{ item }">
+          <v-chip
+            :color="getStockColor(item.currentStock, item.minStock)"
+            size="small"
+            variant="flat"
+          >
             {{ getStockLabel(item.currentStock, item.minStock) }}
           </v-chip>
         </template>
 
-        <template v-slot:item.unitPrice="{ item }">
+        <template v-slot:[`item.unitPrice`]="{ item }">
           {{ formatPrice(item.unitPrice) }}
         </template>
 
-        <template v-slot:item.actions="{ item }">
+        <template v-slot:[`item.actions`]="{ item }">
           <v-btn
             icon="mdi-pencil"
             variant="text"

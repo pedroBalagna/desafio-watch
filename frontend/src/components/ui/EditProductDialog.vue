@@ -237,7 +237,7 @@ const loadSuppliers = async () => {
 }
 
 const handleSubmit = () => {
-  const submitData: any = {
+  const submitData: Partial<Product> = {
     sku: formData.value.sku,
     name: formData.value.name,
     description: formData.value.description || undefined,

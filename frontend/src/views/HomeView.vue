@@ -12,8 +12,8 @@
       errorMessage.value = ''
       await authService.login(data)
       router.push('/products')
-    } catch (error: any) {
-      errorMessage.value = error.message
+    } catch (error: unknown) {
+      errorMessage.value = error instanceof Error ? error.message : 'Erro desconhecido'
     }
   }
 </script>

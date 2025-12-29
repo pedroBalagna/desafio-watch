@@ -135,6 +135,7 @@
 <script setup lang="ts">
 import { categoryService, type Category } from "@/services/categories";
 import { supplierService, type Supplier } from "@/services/suppliers";
+import { type Product } from "@/services/products";
 import { computed, onMounted, ref, watch } from "vue";
 
 interface Props {
@@ -185,7 +186,7 @@ const loadSuppliers = async () => {
   }
 };
 
-const form = ref<any>(null);
+const form = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null);
 const formData = ref({
   sku: "",
   name: "",
@@ -211,11 +212,13 @@ const isFormValid = computed(() => {
 });
 
 const handleSubmit = async () => {
+  if (!form.value) return;
+  
   const { valid } = await form.value.validate();
 
   if (!valid) return;
 
-  const submitData: any = {
+  const submitData: Omit<Product, "id" | "createdAt" | "updatedAt" | "category" | "supplier"> = {
     sku: formData.value.sku,
     name: formData.value.name,
     description: formData.value.description || undefined,
@@ -225,17 +228,10 @@ const handleSubmit = async () => {
     minStock: formData.value.minStock || 0,
     unit: formData.value.unit,
     isActive: formData.value.isActive,
+    ...(formData.value.categoryId && { categoryId: formData.value.categoryId }),
+    ...(formData.value.supplierId && { supplierId: formData.value.supplierId }),
+    ...(formData.value.maxStock !== undefined && formData.value.maxStock > 0 && { maxStock: formData.value.maxStock }),
   };
-
-  if (formData.value.categoryId) {
-    submitData.categoryId = formData.value.categoryId;
-  }
-  if (formData.value.supplierId) {
-    submitData.supplierId = formData.value.supplierId;
-  }
-  if (formData.value.maxStock !== undefined && formData.value.maxStock > 0) {
-    submitData.maxStock = formData.value.maxStock;
-  }
 
   emit("submit", submitData);
 
