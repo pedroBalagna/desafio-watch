@@ -11,7 +11,7 @@ export default {
 </script>
 <template>
   <div class="bg-primary-watch w-full flex justify-between items-center px-9">
-    <router-link to="/products">
+    <router-link to="/dashboard">
       <IconLogo class="w-[68px] h-[68px]" />
     </router-link>
     <AppMenu />

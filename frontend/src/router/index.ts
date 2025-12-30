@@ -18,9 +18,45 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('../views/DashboardView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/products',
       name: 'products',
       component: () => import('../views/ProductsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      component: () => import('../views/CategoriesView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/suppliers',
+      name: 'suppliers',
+      component: () => import('../views/SuppliersView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/warehouses',
+      name: 'warehouses',
+      component: () => import('../views/WarehousesView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/stock',
+      name: 'stock',
+      component: () => import('../views/StockView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: () => import('../views/UsersView.vue'),
       meta: { requiresAuth: true }
     }
   ],
@@ -33,7 +69,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/')
   } else if ((to.path === '/' || to.path === '/register') && isAuthenticated) {
-    next('/products')
+    next('/dashboard')
   } else {
     next()
   }
