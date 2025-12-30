@@ -1,8 +1,8 @@
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { LoggerService } from '../common/logger/logger.service';
-import { NotFoundException, ConflictException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -101,6 +101,27 @@ describe('UsersService', () => {
     });
   });
 
+  describe('findAll', () => {
+    it('deve retornar lista de usuários', async () => {
+      const mockUsers = [
+        {
+          id: '1',
+          email: 'user1@example.com',
+          name: 'User 1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.user.findMany.mockResolvedValue(mockUsers);
+
+      const result = await service.findAll();
+
+      expect(result).toEqual(mockUsers);
+      expect(mockPrismaService.user.findMany).toHaveBeenCalled();
+    });
+  });
+
   describe('findOne', () => {
     it('deve retornar um usuário por ID', async () => {
       const mockUser = {
@@ -123,12 +144,105 @@ describe('UsersService', () => {
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       });
+      expect(result).not.toHaveProperty('password');
     });
 
     it('deve lançar NotFoundException se o usuário não existe', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
       await expect(service.findOne('999')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findByEmail', () => {
+    it('deve retornar usuário por email', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashedPassword',
+      };
+
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+
+      const result = await service.findByEmail('test@example.com');
+
+      expect(result).toEqual(mockUser);
+    });
+  });
+
+  describe('update', () => {
+    const updateUserDto = {
+      name: 'User Updated',
+      email: 'updated@example.com',
+    };
+
+    it('deve atualizar um usuário com sucesso', async () => {
+      const existingUser = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashedPassword',
+      };
+      const updatedUser = {
+        ...existingUser,
+        ...updateUserDto,
+      };
+
+      mockPrismaService.user.findUnique
+        .mockResolvedValueOnce(existingUser) // findOne check
+        .mockResolvedValueOnce(null); // email check
+      mockPrismaService.user.update.mockResolvedValue(updatedUser);
+
+      const result = await service.update('1', updateUserDto);
+
+      expect(result).not.toHaveProperty('password');
+      expect(mockPrismaService.user.update).toHaveBeenCalled();
+    });
+
+    it('deve lançar NotFoundException se usuário não existe', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.update('999', updateUserDto)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('deve lançar ConflictException se email duplicado', async () => {
+      const existingUser = { id: '1', email: 'test@example.com' };
+      const updateWithEmail = { email: 'duplicado@example.com' };
+
+      mockPrismaService.user.findUnique
+        .mockResolvedValueOnce(existingUser)
+        .mockResolvedValueOnce({ id: '2', email: 'duplicado@example.com' });
+
+      await expect(service.update('1', updateWithEmail)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('deve remover um usuário com sucesso', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockPrismaService.user.delete.mockResolvedValue(mockUser);
+
+      const result = await service.remove('1');
+
+      expect(result).toEqual({ message: 'Usuário removido com sucesso' });
+      expect(mockPrismaService.user.delete).toHaveBeenCalled();
+    });
+
+    it('deve lançar NotFoundException se usuário não existe', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.remove('999')).rejects.toThrow(NotFoundException);
     });
   });
 });

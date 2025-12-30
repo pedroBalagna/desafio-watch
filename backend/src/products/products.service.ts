@@ -125,7 +125,7 @@ export class ProductsService {
 
     const skip = (page - 1) * limit;
 
-    const [products, total] = await Promise.all([
+    const [allProducts, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
         include: {
@@ -137,31 +137,44 @@ export class ProductsService {
           },
         },
         orderBy: { name: 'asc' },
-        skip,
-        take: limit,
       }),
       this.prisma.product.count({ where }),
     ]);
 
+    // Filtrar por estoque baixo se necessário (após a query)
+    let products = allProducts;
+    if (stockStatus === StockStatus.LOW) {
+      products = allProducts.filter(
+        (p) => p.currentStock > 0 && p.currentStock <= p.minStock,
+      );
+    }
+
+    // Aplicar paginação após filtro de estoque baixo
+    const paginatedProducts = products.slice(skip, skip + limit);
+
     // Adicionar flag de estoque baixo
-    const productsWithFlags = products.map((product) => ({
+    const productsWithFlags = paginatedProducts.map((product) => ({
       ...product,
       isLowStock: product.currentStock <= product.minStock,
       isOutOfStock: product.currentStock === 0,
     }));
 
+    // Ajustar total se filtramos por estoque baixo
+    const adjustedTotal =
+      stockStatus === StockStatus.LOW ? products.length : total;
+
     this.logger.log(
-      `Listando ${products.length} de ${total} produtos`,
+      `Listando ${productsWithFlags.length} de ${adjustedTotal} produtos`,
       'ProductsService',
     );
 
     return {
       data: productsWithFlags,
       meta: {
-        total,
+        total: adjustedTotal,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(adjustedTotal / limit),
       },
     };
   }
@@ -340,17 +353,11 @@ export class ProductsService {
   }
 
   async getLowStockProducts() {
+    // Buscar todos os produtos ativos e filtrar em memória
+    // pois Prisma não permite comparar currentStock com minStock diretamente
     const products = await this.prisma.product.findMany({
       where: {
         isActive: true,
-        OR: [
-          { currentStock: 0 },
-          {
-            currentStock: {
-              lte: this.prisma.product.fields.minStock as any,
-            },
-          },
-        ],
       },
       include: {
         category: {
@@ -363,7 +370,7 @@ export class ProductsService {
       orderBy: { currentStock: 'asc' },
     });
 
-    // Filtrar produtos com estoque baixo
+    // Filtrar produtos com estoque baixo ou zerado
     const lowStockProducts = products.filter(
       (p) => p.currentStock <= p.minStock,
     );

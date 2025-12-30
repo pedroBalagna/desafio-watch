@@ -172,21 +172,13 @@ const headers = [
         </template>
 
         <template v-slot:[`item.role`]="{ item }">
-          <v-chip
-            :color="getRoleColor(item.role)"
-            size="small"
-            variant="flat"
-          >
+          <v-chip :color="getRoleColor(item.role)" size="small" variant="flat">
             {{ getRoleLabel(item.role) }}
           </v-chip>
         </template>
 
         <template v-slot:[`item.isActive`]="{ item }">
-          <v-chip
-            :color="item.isActive ? 'success' : 'default'"
-            size="small"
-            variant="flat"
-          >
+          <v-chip :color="item.isActive ? 'success' : 'default'" size="small" variant="flat">
             {{ item.isActive ? "Ativo" : "Inativo" }}
           </v-chip>
         </template>
@@ -272,9 +264,7 @@ const headers = [
     <!-- Delete Dialog -->
     <v-dialog v-model="isDeleteDialogOpen" max-width="400">
       <v-card>
-        <v-card-title class="dialog-title text-error">
-          Confirmar Exclusão
-        </v-card-title>
+        <v-card-title class="dialog-title text-error"> Confirmar Exclusão </v-card-title>
 
         <v-card-text>
           <p>Tem certeza que deseja excluir o usuário "{{ selectedUser?.name }}"?</p>
@@ -286,9 +276,7 @@ const headers = [
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="isDeleteDialogOpen = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" @click="handleDelete">
-            Excluir
-          </v-btn>
+          <v-btn color="error" variant="flat" @click="handleDelete"> Excluir </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
