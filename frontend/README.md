@@ -33,7 +33,7 @@ Sistema de gerenciamento de estoque desenvolvido com Vue 3, TypeScript e Vuetify
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/harduim300/Frontend-Project-Watch
+git clone https://github.com/pedroBalagna/desafio-watch
 ```
 
 2. Instale as dependências:
