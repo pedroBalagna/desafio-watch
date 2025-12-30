@@ -2,6 +2,10 @@
 
 Sistema completo de gerenciamento de estoque desenvolvido como desafio técnico, composto por uma API REST robusta (backend), uma interface web moderna (frontend) e infraestrutura como código (IaC).
 
+## 📋 URL's atualizadas
+Front: https://front-desafio-watch.vercel.app/
+Back: https://back-desafio-watch.vercel.app/ (Vercel Function)
+
 ## 📋 Sobre o Projeto
 
 Este projeto foi desenvolvido como parte de um desafio técnico para demonstrar habilidades em desenvolvimento fullstack. O sistema oferece uma solução completa para gerenciamento de estoque, incluindo:
