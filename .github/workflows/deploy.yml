@@ -157,6 +157,19 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
           VERCEL_GIT_COMMIT_SHA: ${{ github.sha }}
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run Prisma Migrations
+        run: pnpm prisma:migrate:deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Deploy Backend to Vercel
         run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         env:

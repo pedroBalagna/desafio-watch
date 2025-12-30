@@ -1,12 +1,12 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
+import { LoggerService } from '../common/logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
-import { LoggerService } from '../common/logger/logger.service';
 
 @Injectable()
 export class WarehousesService {
@@ -120,16 +120,97 @@ export class WarehousesService {
       }
     }
 
-    const warehouse = await this.prisma.warehouse.update({
-      where: { id },
-      data: updateWarehouseDto,
-    });
+    // Preparar dados para atualização, convertendo strings vazias em null
+    const dataToUpdate: any = {};
 
-    this.logger.log(
-      `Armazém atualizado: ${warehouse.name}`,
-      'WarehousesService',
-    );
-    return warehouse;
+    if (updateWarehouseDto.name !== undefined) {
+      dataToUpdate.name = updateWarehouseDto.name;
+    }
+    if (updateWarehouseDto.code !== undefined) {
+      dataToUpdate.code = updateWarehouseDto.code;
+    }
+    if (updateWarehouseDto.address !== undefined) {
+      dataToUpdate.address =
+        updateWarehouseDto.address && updateWarehouseDto.address.trim()
+          ? updateWarehouseDto.address.trim()
+          : null;
+    }
+    if (updateWarehouseDto.city !== undefined) {
+      dataToUpdate.city =
+        updateWarehouseDto.city && updateWarehouseDto.city.trim()
+          ? updateWarehouseDto.city.trim()
+          : null;
+    }
+    if (updateWarehouseDto.state !== undefined) {
+      dataToUpdate.state =
+        updateWarehouseDto.state && updateWarehouseDto.state.trim()
+          ? updateWarehouseDto.state.trim()
+          : null;
+    }
+    if (updateWarehouseDto.zipCode !== undefined) {
+      dataToUpdate.zipCode =
+        updateWarehouseDto.zipCode && updateWarehouseDto.zipCode.trim()
+          ? updateWarehouseDto.zipCode.trim()
+          : null;
+    }
+    if (updateWarehouseDto.description !== undefined) {
+      dataToUpdate.description =
+        updateWarehouseDto.description && updateWarehouseDto.description.trim()
+          ? updateWarehouseDto.description.trim()
+          : null;
+    }
+    if (updateWarehouseDto.isActive !== undefined) {
+      dataToUpdate.isActive = updateWarehouseDto.isActive;
+    }
+
+    try {
+      const warehouse = await this.prisma.warehouse.update({
+        where: { id },
+        data: dataToUpdate,
+      });
+
+      this.logger.log(
+        `Armazém atualizado: ${warehouse.name}`,
+        'WarehousesService',
+      );
+      return warehouse;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+
+      this.logger.error(
+        `Erro ao atualizar armazém ${id}: ${errorMessage}`,
+        'WarehousesService',
+      );
+
+      if (errorStack) {
+        this.logger.error(`Stack trace: ${errorStack}`, 'WarehousesService');
+      }
+
+      // Re-throw exceções do NestJS
+      if (
+        error instanceof ConflictException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+
+      // Se o erro for do Prisma, logar código do erro
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        'meta' in error
+      ) {
+        this.logger.error(
+          `Erro Prisma - Código: ${(error as any).code}, Meta: ${JSON.stringify((error as any).meta)}`,
+          'WarehousesService',
+        );
+      }
+
+      throw error;
+    }
   }
 
   async remove(id: string) {
