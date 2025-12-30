@@ -10,7 +10,14 @@ const isEditing = ref(false);
 const selectedWarehouse = ref<Warehouse | null>(null);
 const deleteError = ref("");
 
-const formData = ref({
+const formData = ref<{
+  name: string;
+  code: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}>({
   name: "",
   code: "",
   address: "",
@@ -36,7 +43,14 @@ const loadWarehouses = async () => {
 
 const openCreateDialog = () => {
   isEditing.value = false;
-  formData.value = { name: "", code: "", address: "", city: "", state: "", zipCode: "" };
+  formData.value = {
+    name: "",
+    code: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+  };
   isDialogOpen.value = true;
 };
 
@@ -57,21 +71,72 @@ const openEditDialog = (warehouse: Warehouse) => {
 const handleSubmit = async () => {
   try {
     if (isEditing.value && selectedWarehouse.value) {
+      // Preparar dados para atualização (campos opcionais)
+      const updateData: {
+        name: string;
+        code: string;
+        address?: string;
+        city?: string;
+        state?: string;
+        zipCode?: string;
+      } = {
+        name: formData.value.name,
+        code: formData.value.code,
+      };
+
+      // Adicionar apenas campos que não estão vazios
+      if (formData.value.address?.trim()) {
+        updateData.address = formData.value.address.trim();
+      }
+      if (formData.value.city?.trim()) {
+        updateData.city = formData.value.city.trim();
+      }
+      if (formData.value.state?.trim()) {
+        updateData.state = formData.value.state.trim();
+      }
+      if (formData.value.zipCode?.trim()) {
+        updateData.zipCode = formData.value.zipCode.trim();
+      }
+
       const updated = await warehouseService.updateWarehouse(
         selectedWarehouse.value.id,
-        formData.value
+        updateData
       );
-      const index = warehouses.value.findIndex(
-        (w) => w.id === selectedWarehouse.value!.id
-      );
+      const index = warehouses.value.findIndex((w) => w.id === selectedWarehouse.value!.id);
       if (index !== -1) {
         warehouses.value[index] = updated;
       }
     } else {
-      const created = await warehouseService.createWarehouse({
-        ...formData.value,
+      // Preparar dados para criação (isActive obrigatório)
+      const createData: {
+        name: string;
+        code: string;
+        address?: string;
+        city?: string;
+        state?: string;
+        zipCode?: string;
+        isActive: boolean;
+      } = {
+        name: formData.value.name,
+        code: formData.value.code,
         isActive: true,
-      });
+      };
+
+      // Adicionar apenas campos que não estão vazios
+      if (formData.value.address?.trim()) {
+        createData.address = formData.value.address.trim();
+      }
+      if (formData.value.city?.trim()) {
+        createData.city = formData.value.city.trim();
+      }
+      if (formData.value.state?.trim()) {
+        createData.state = formData.value.state.trim();
+      }
+      if (formData.value.zipCode?.trim()) {
+        createData.zipCode = formData.value.zipCode.trim();
+      }
+
+      const created = await warehouseService.createWarehouse(createData);
       warehouses.value.push(created);
     }
     isDialogOpen.value = false;
@@ -90,9 +155,7 @@ const handleDelete = async () => {
   if (!selectedWarehouse.value) return;
   try {
     await warehouseService.deleteWarehouse(selectedWarehouse.value.id);
-    warehouses.value = warehouses.value.filter(
-      (w) => w.id !== selectedWarehouse.value!.id
-    );
+    warehouses.value = warehouses.value.filter((w) => w.id !== selectedWarehouse.value!.id);
     isDeleteDialogOpen.value = false;
   } catch (error) {
     deleteError.value = "Erro ao excluir armazém. Verifique se não há estoque vinculado.";
@@ -114,9 +177,33 @@ const headers = [
 ];
 
 const states = [
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-  "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
 ];
 </script>
 
@@ -154,11 +241,7 @@ const states = [
         </template>
 
         <template v-slot:[`item.isActive`]="{ item }">
-          <v-chip
-            :color="item.isActive ? 'success' : 'default'"
-            size="small"
-            variant="flat"
-          >
+          <v-chip :color="item.isActive ? 'success' : 'default'" size="small" variant="flat">
             {{ item.isActive ? "Ativo" : "Inativo" }}
           </v-chip>
         </template>
@@ -202,26 +285,13 @@ const states = [
                 />
               </v-col>
               <v-col cols="12" md="8">
-                <v-text-field
-                  v-model="formData.name"
-                  label="Nome *"
-                  variant="outlined"
-                  required
-                />
+                <v-text-field v-model="formData.name" label="Nome *" variant="outlined" required />
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  v-model="formData.address"
-                  label="Endereço"
-                  variant="outlined"
-                />
+                <v-text-field v-model="formData.address" label="Endereço" variant="outlined" />
               </v-col>
               <v-col cols="12" md="5">
-                <v-text-field
-                  v-model="formData.city"
-                  label="Cidade"
-                  variant="outlined"
-                />
+                <v-text-field v-model="formData.city" label="Cidade" variant="outlined" />
               </v-col>
               <v-col cols="12" md="3">
                 <v-select
@@ -256,9 +326,7 @@ const states = [
     <!-- Delete Dialog -->
     <v-dialog v-model="isDeleteDialogOpen" max-width="400">
       <v-card>
-        <v-card-title class="dialog-title text-error">
-          Confirmar Exclusão
-        </v-card-title>
+        <v-card-title class="dialog-title text-error"> Confirmar Exclusão </v-card-title>
 
         <v-card-text>
           <p>Tem certeza que deseja excluir o armazém "{{ selectedWarehouse?.name }}"?</p>
@@ -270,9 +338,7 @@ const states = [
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="isDeleteDialogOpen = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" @click="handleDelete">
-            Excluir
-          </v-btn>
+          <v-btn color="error" variant="flat" @click="handleDelete"> Excluir </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

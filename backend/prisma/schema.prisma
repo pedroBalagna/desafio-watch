@@ -106,6 +106,9 @@ model Warehouse {
   name        String   @unique
   code        String   @unique
   address     String?
+  city        String?
+  state       String?
+  zipCode     String?
   description String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
