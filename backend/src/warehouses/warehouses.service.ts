@@ -34,19 +34,6 @@ export class WarehousesService {
 
     const warehouse = await this.prisma.warehouse.create({
       data: createWarehouseDto,
-      select: {
-        id: true,
-        name: true,
-        code: true,
-        address: true,
-        city: true,
-        state: true,
-        zipCode: true,
-        description: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
 
     this.logger.log(`Armazém criado: ${warehouse.name}`, 'WarehousesService');
@@ -58,18 +45,7 @@ export class WarehousesService {
 
     const warehouses = await this.prisma.warehouse.findMany({
       where,
-      select: {
-        id: true,
-        name: true,
-        code: true,
-        address: true,
-        city: true,
-        state: true,
-        zipCode: true,
-        description: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         _count: {
           select: {
             stockLevels: true,
@@ -90,18 +66,7 @@ export class WarehousesService {
   async findOne(id: string) {
     const warehouse = await this.prisma.warehouse.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        code: true,
-        address: true,
-        city: true,
-        state: true,
-        zipCode: true,
-        description: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         stockLevels: {
           include: {
             product: {
@@ -202,19 +167,6 @@ export class WarehousesService {
       const warehouse = await this.prisma.warehouse.update({
         where: { id },
         data: dataToUpdate,
-        select: {
-          id: true,
-          name: true,
-          code: true,
-          address: true,
-          city: true,
-          state: true,
-          zipCode: true,
-          description: true,
-          isActive: true,
-          createdAt: true,
-          updatedAt: true,
-        },
       });
 
       this.logger.log(
