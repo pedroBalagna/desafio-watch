@@ -1,30 +1,13 @@
 <template>
-  <v-dialog v-model="dialogOpen" transition="dialog-bottom-transition" fullscreen>
+  <v-dialog v-model="dialogOpen" max-width="800">
     <v-card>
-      <v-toolbar>
-        <v-btn icon="mdi-close" @click="handleClose"></v-btn>
-        <v-toolbar-title>{{ product?.name || "Editar Produto" }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items>
-          <v-btn
-            prepend-icon="mdi-delete"
-            text="Excluir"
-            variant="text"
-            color="error"
-            @click="$emit('delete')"
-          ></v-btn>
-          <v-btn
-            prepend-icon="mdi-content-save"
-            text="Salvar"
-            variant="text"
-            color="#ff501a"
-            @click="handleSubmit"
-          ></v-btn>
-        </v-toolbar-items>
-      </v-toolbar>
+      <v-card-title class="text-h5 grey lighten-2">
+        {{ product?.name || "Editar Produto" }}
+      </v-card-title>
 
-      <v-list lines="two" class="pa-4">
-        <v-list-subheader>Informações do Produto</v-list-subheader>
+      <v-card-text class="pt-4">
+        <v-form @submit.prevent="handleSubmit">
+          <v-list-subheader class="px-0 mb-2">Informações do Produto</v-list-subheader>
 
         <v-text-field
           v-model="formData.sku"
@@ -127,24 +110,46 @@
           </v-col>
         </v-row>
 
-        <v-switch v-model="formData.isActive" label="Produto Ativo" color="primary"></v-switch>
-      </v-list>
+          <v-switch v-model="formData.isActive" label="Produto Ativo" color="primary"></v-switch>
 
-      <v-list v-if="product">
-        <v-list-subheader>Informações Adicionais</v-list-subheader>
-        <v-list-item>
-          <v-list-item-title>Estoque Atual</v-list-item-title>
-          <v-list-item-subtitle>{{ product.currentStock }} {{ product.unit }}</v-list-item-subtitle>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>SKU</v-list-item-title>
-          <v-list-item-subtitle>{{ product.sku }}</v-list-item-subtitle>
-        </v-list-item>
-        <v-list-item v-if="product.barcode">
-          <v-list-item-title>Código de Barras</v-list-item-title>
-          <v-list-item-subtitle>{{ product.barcode }}</v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
+          <v-divider class="my-4" v-if="product"></v-divider>
+
+          <div v-if="product" class="mt-4">
+            <v-list-subheader class="px-0 mb-2">Informações Adicionais</v-list-subheader>
+            <v-list-item class="px-0">
+              <v-list-item-title>Estoque Atual</v-list-item-title>
+              <v-list-item-subtitle>{{ product.currentStock }} {{ product.unit }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item class="px-0">
+              <v-list-item-title>SKU</v-list-item-title>
+              <v-list-item-subtitle>{{ product.sku }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item v-if="product.barcode" class="px-0">
+              <v-list-item-title>Código de Barras</v-list-item-title>
+              <v-list-item-subtitle>{{ product.barcode }}</v-list-item-subtitle>
+            </v-list-item>
+          </div>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          prepend-icon="mdi-delete"
+          text="Excluir"
+          variant="text"
+          color="error"
+          @click="$emit('delete')"
+        ></v-btn>
+        <v-btn color="grey-darken-1" variant="text" @click="handleClose">Cancelar</v-btn>
+        <v-btn
+          prepend-icon="mdi-content-save"
+          text="Salvar"
+          variant="elevated"
+          color="#ff501a"
+          @click="handleSubmit"
+        ></v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
