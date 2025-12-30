@@ -134,7 +134,6 @@ const headers = [
   { title: "Nome", key: "name", sortable: true },
   { title: "Email", key: "email", sortable: true },
   { title: "Função", key: "role", sortable: true },
-  { title: "Status", key: "isActive", sortable: true },
   { title: "Criado em", key: "createdAt", sortable: true },
   { title: "Ações", key: "actions", sortable: false, align: "end" as const },
 ];
@@ -174,12 +173,6 @@ const headers = [
         <template v-slot:[`item.role`]="{ item }">
           <v-chip :color="getRoleColor(item.role)" size="small" variant="flat">
             {{ getRoleLabel(item.role) }}
-          </v-chip>
-        </template>
-
-        <template v-slot:[`item.isActive`]="{ item }">
-          <v-chip :color="item.isActive ? 'success' : 'default'" size="small" variant="flat">
-            {{ item.isActive ? "Ativo" : "Inativo" }}
           </v-chip>
         </template>
 

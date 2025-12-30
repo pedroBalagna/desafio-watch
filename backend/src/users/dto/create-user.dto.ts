@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength, IsNotEmpty } from 'class-validator';
+import { UserRole } from '@prisma/client';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -24,4 +32,15 @@ export class CreateUserDto {
   @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
   @IsNotEmpty({ message: 'Senha é obrigatória' })
   password: string;
+
+  @ApiProperty({
+    example: 'USER',
+    description: 'Função do usuário',
+    enum: UserRole,
+    required: false,
+    default: 'USER',
+  })
+  @IsOptional()
+  @IsEnum(UserRole, { message: 'Role deve ser USER, ADMIN ou MANAGER' })
+  role?: UserRole;
 }

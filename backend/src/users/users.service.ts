@@ -1,12 +1,12 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
+import { LoggerService } from '../common/logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoggerService } from '../common/logger/logger.service';
 
 @Injectable()
 export class UsersService {
@@ -45,6 +45,7 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
       },
