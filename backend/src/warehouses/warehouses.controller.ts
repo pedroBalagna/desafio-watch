@@ -1,27 +1,27 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
   ParseUUIDPipe,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
+  ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-import { WarehousesService } from './warehouses.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { WarehousesService } from './warehouses.service';
 
 @ApiTags('warehouses')
 @Controller('warehouses')
@@ -29,7 +29,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @ApiBearerAuth('JWT-auth')
 export class WarehousesController {
   constructor(private readonly warehousesService: WarehousesService) {}
-
+  //test
   @Post()
   @ApiOperation({ summary: 'Criar novo armazém' })
   @ApiResponse({ status: 201, description: 'Armazém criado com sucesso' })
